@@ -7,7 +7,7 @@ package net.funkyjava.gametheory.gameutil.cards;
  * This interface is a bridge from a particular integer cards implementation and
  * an arbitrary standard. The specifications define an offset with
  * {@link #getOffset()} that indicates that valid values will be between this
- * offset (inclusive) and the offset + 52 (exclusive).
+ * offset (inclusive) and the offset + deckSize (exclusive).
  * 
  * @author Pierre Mardon
  * 
@@ -21,10 +21,11 @@ public interface IntCardsSpec {
 	int getOffset();
 
 	/**
-	 * Gets the rank of a card with 0 = deuce, ..., 12 = ace
+	 * Gets the rank of a card with 0 = deuce, ..., 12 = ace for 52 cards decks,
+	 * or 0 = seven , ..., 7 = ace for 32 cards deck
 	 * 
 	 * @param card
-	 *            the int card, >= offset && < offset + 52
+	 *            the int card, >= offset && < offset + deckSize
 	 * @return the standard rank of the card
 	 */
 	int getStandardRank(int card);
@@ -36,7 +37,7 @@ public interface IntCardsSpec {
 	 * spade = 3, as exposed by {@link CardsStrings#getColorStr(int)}
 	 * 
 	 * @param card
-	 *            the int card, >= offset && < offset + 52
+	 *            the int card, >= offset && < offset + deckSize
 	 * @return the standard color of the card
 	 */
 	int getStandardColor(int card);
@@ -62,4 +63,5 @@ public interface IntCardsSpec {
 	 * @return true when the cards have the same rank
 	 */
 	boolean sameRank(int card1, int card2);
+
 }

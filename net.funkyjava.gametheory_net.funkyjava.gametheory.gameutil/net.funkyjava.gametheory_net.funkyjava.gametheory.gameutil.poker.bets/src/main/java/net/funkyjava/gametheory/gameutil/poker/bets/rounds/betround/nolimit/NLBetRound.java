@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import lombok.ToString;
 import net.funkyjava.gametheory.gameutil.poker.bets.moves.Move;
 import net.funkyjava.gametheory.gameutil.poker.bets.rounds.RoundState;
 import net.funkyjava.gametheory.gameutil.poker.bets.rounds.betround.BetChoice;
@@ -19,7 +20,6 @@ import net.funkyjava.gametheory.gameutil.poker.bets.rounds.betround.BetRoundStar
 import net.funkyjava.gametheory.gameutil.poker.bets.rounds.betround.CallValue;
 import net.funkyjava.gametheory.gameutil.poker.bets.rounds.betround.RaiseRange;
 import net.funkyjava.gametheory.gameutil.poker.bets.rounds.data.PlayersData;
-import lombok.ToString;
 
 /**
  * @author Pierre Mardon
@@ -37,6 +37,7 @@ public class NLBetRound implements Cloneable {
 	private final int nbPlayers;
 	private int player;
 	private int highestBet, lastRaise;
+	private final int firstBetSubRound;
 	private int betSubRound;
 	private RoundState state;
 	private final List<Move<Integer>> seq = new LinkedList<>();
@@ -55,7 +56,7 @@ public class NLBetRound implements Cloneable {
 		for (int i = 0; i < nbPlayers; i++)
 			if (bets[i] > highestBet)
 				highestBet = bets[i];
-		betSubRound = highestBet > 0 ? 1 : 0;
+		firstBetSubRound = betSubRound = highestBet > 0 ? 1 : 0;
 		if (highestBet > 0)
 			highestBet = Math.max(highestBet, bigBlind);
 		player = startRoundData.getFirstPlayerIndex() - 1;
@@ -68,6 +69,7 @@ public class NLBetRound implements Cloneable {
 		this.seq.addAll(source.seq);
 		this.bets = source.bets.clone();
 		this.betSubRound = source.betSubRound;
+		this.firstBetSubRound = source.firstBetSubRound;
 		this.bigBlind = source.bigBlind;
 		this.highestBet = source.highestBet;
 		this.inHand = source.inHand.clone();
@@ -269,7 +271,7 @@ public class NLBetRound implements Cloneable {
 
 			||
 
-			(betSubRound == 0 && !played[p]))
+			(!played[p]))
 
 			{
 				nbCanPlay++;

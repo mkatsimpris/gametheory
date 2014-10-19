@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import net.funkyjava.gametheory.gameutil.poker.bets.moves.Move;
 import net.funkyjava.gametheory.gameutil.poker.bets.pots.Pot;
 import net.funkyjava.gametheory.gameutil.poker.bets.pots.SharedPot;
@@ -25,7 +27,6 @@ import net.funkyjava.gametheory.gameutil.poker.bets.rounds.blindsround.BlindValu
 import net.funkyjava.gametheory.gameutil.poker.bets.rounds.blindsround.BlindsRound;
 import net.funkyjava.gametheory.gameutil.poker.bets.rounds.data.BlindsAnteParameters;
 import net.funkyjava.gametheory.gameutil.poker.bets.rounds.data.PlayersData;
-import lombok.extern.slf4j.Slf4j;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
@@ -35,7 +36,7 @@ import com.google.common.collect.Lists;
  * 
  */
 @Slf4j
-public class NLHandRounds {
+public class NLHandRounds implements Cloneable {
 
 	/**
 	 * 
@@ -47,15 +48,49 @@ public class NLHandRounds {
 	private final boolean hasBlinds;
 	private final boolean isCash;
 	private final int roundOffset;
+	@Getter
 	private final int nbRounds;
+	@Getter
 	private final int nbBetRounds;
 	private RoundType rType;
+	@Getter
 	private int round = -1;
 	private final BlindsAnteParameters params;
 	private final int firstPlayerBetRounds;
 
+	private NLHandRounds(NLHandRounds src) {
+		anteRound = cloneOrNull(src.anteRound);
+		blindsRound = cloneOrNull(src.blindsRound);
+		betRounds = new NLBetRound[src.betRounds.length];
+		for (int i = 0; i < src.betRounds.length; i++)
+			betRounds[i] = cloneOrNull(src.betRounds[i]);
+		hasAnte = src.hasAnte;
+		hasBlinds = src.hasBlinds;
+		isCash = src.isCash;
+		roundOffset = src.roundOffset;
+		nbRounds = src.nbRounds;
+		nbBetRounds = src.nbBetRounds;
+		rType = src.rType;
+		round = src.round;
+		params = src.params;
+		firstPlayerBetRounds = src.firstPlayerBetRounds;
+	}
+
+	@SuppressWarnings("unchecked")
+	private <C extends Object> C cloneOrNull(C obj) {
+		if (obj == null)
+			return null;
+		try {
+			return (C) obj.getClass().getMethod("clone").invoke(obj);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+
+	}
+
 	public NLHandRounds(BlindsAnteParameters params, int nbBetRounds,
-			int firstPlayerBetRounds, boolean isCash) throws Exception {
+			int firstPlayerBetRounds, boolean isCash) {
 		checkArgument(nbBetRounds > 0, "You must have at least one bet round");
 		checkArgument(!params.isEnableAnte() || params.getAnteValue() > 0,
 				"Ante value {} is invalid", params.getAnteValue());
@@ -112,6 +147,38 @@ public class NLHandRounds {
 
 	private boolean isBetRound() {
 		return round - roundOffset >= 0;
+	}
+
+	public int getBettingPlayer() {
+		checkArgument(isBetRound(), "Doesn't seem to be in a bet round");
+		checkArgument(
+				betRounds[round - roundOffset].getState() == RoundState.WAITING_MOVE,
+				"Bet round is in wrong state %s expected %s", betRounds[round
+						- roundOffset].getState(), RoundState.WAITING_MOVE);
+		return betRounds[round - roundOffset].getCurrentPlayer();
+	}
+
+	public BetChoice getBetChoice() {
+		checkArgument(isBetRound(), "Doesn't seem to be in a bet round");
+		checkArgument(
+				betRounds[round - roundOffset].getState() == RoundState.WAITING_MOVE,
+				"Bet round is in wrong state %s expected %s", betRounds[round
+						- roundOffset].getState(), RoundState.WAITING_MOVE);
+		return betRounds[round - roundOffset].getBetChoice();
+	}
+
+	public PlayersData getPlayersData() {
+		switch (rType) {
+		case ANTE:
+			return anteRound.getData();
+		case BETS:
+			return betRounds[round - roundOffset].getData();
+		case BLINDS:
+			return blindsRound.getData();
+		default:
+			break;
+		}
+		return null;
 	}
 
 	public boolean doMove(Move<Integer> move) {
@@ -320,9 +387,8 @@ public class NLHandRounds {
 					blindsRound.getState(), RoundState.NEXT_ROUND);
 			return false;
 		}
-		return nextBetRound(new BetRoundStartData(new PlayersData(blindsRound
-				.getData().getNoBetData()), params.getFirstPlayerAfterBlinds(),
-				params.getBbValue()));
+		return nextBetRound(new BetRoundStartData(blindsRound.getData(),
+				params.getFirstPlayerAfterBlinds(), params.getBbValue()));
 	}
 
 	public boolean nextBetRound() {
@@ -344,9 +410,9 @@ public class NLHandRounds {
 					round, round - roundOffset);
 			return false;
 		}
-		return nextBetRound(new BetRoundStartData(new PlayersData(anteRound
-				.getData().getNoBetData()), firstPlayerBetRounds,
-				params.getBbValue()));
+		return nextBetRound(new BetRoundStartData(new PlayersData(
+				betRounds[round - roundOffset].getData().getNoBetData()),
+				firstPlayerBetRounds, params.getBbValue()));
 	}
 
 	private boolean nextBetRound(BetRoundStartData data) {
@@ -528,5 +594,10 @@ public class NLHandRounds {
 			if (list2.contains(i))
 				return true;
 		return false;
+	}
+
+	@Override
+	public NLHandRounds clone() {
+		return new NLHandRounds(this);
 	}
 }

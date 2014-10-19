@@ -21,7 +21,7 @@ import lombok.NonNull;
  * @author Pierre Mardon
  * 
  */
-public class AnteRound {
+public class AnteRound implements Cloneable{
 	private final int nbPlayers;
 	private final int[] bets;
 	private final int[] stacks;
@@ -53,6 +53,18 @@ public class AnteRound {
 		checkArgument(ante > 0, "Ante must be > 0, found %s", ante);
 	}
 
+	private AnteRound(AnteRound src){
+		inHand = src.inHand.clone();
+		stacks = src.stacks.clone();
+		nbPlayers = src.nbPlayers;
+		bbIndex = src.bbIndex;
+		bets = src.bets.clone();
+		payed = src.payed.clone();
+		ante = src.ante;
+		state = src.state;
+		seq.addAll(src.seq);
+	}
+	
 	public RoundState getState() {
 		return state;
 	}
@@ -147,5 +159,9 @@ public class AnteRound {
 				res.add(i);
 		return res;
 	}
-
+	
+	@Override
+	public AnteRound clone() {
+		return new AnteRound(this);
+	}
 }

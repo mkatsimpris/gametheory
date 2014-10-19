@@ -22,7 +22,7 @@ import net.funkyjava.gametheory.gameutil.poker.bets.rounds.data.PlayersData;
  * @author Pierre Mardon
  * 
  */
-public class BlindsRound {
+public class BlindsRound implements Cloneable {
 
 	private final int nbPlayers;
 	private final int[] bets;
@@ -35,6 +35,21 @@ public class BlindsRound {
 	private RoundState state = RoundState.WAITING_MOVE;
 
 	// TODO maintain and check state
+
+	private BlindsRound(BlindsRound src) {
+		this.nbPlayers = src.nbPlayers;
+		this.bets = src.bets.clone();
+		this.stacks = src.stacks.clone();
+		this.inHand = src.inHand.clone();
+		this.shouldPostEnteringBb = src.shouldPostEnteringBb.clone();
+		this.payed = src.payed.clone();
+		this.sbValue = src.sbValue;
+		this.bbValue = src.bbValue;
+		this.bbIndex = src.bbIndex;
+		this.sbIndex = src.sbIndex;
+		this.seq.addAll(src.seq);
+		this.state = src.state;
+	}
 
 	/**
 	 * 
@@ -231,5 +246,10 @@ public class BlindsRound {
 
 	public boolean hasSbPayed() {
 		return sbIndex >= 0 && payed[sbIndex];
+	}
+
+	@Override
+	public BlindsRound clone() {
+		return new BlindsRound(this);
 	}
 }

@@ -6,6 +6,7 @@ package net.funkyjava.gametheory.gameutil.poker.bets.pots;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import java.awt.IllegalComponentStateException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -59,7 +60,7 @@ public class Pot<PlayerId> {
 					minBet = Math.min(minBet, newBets[p]);
 				}
 			}
-			if (minBet == 0) {
+			if (minBet == 0 || minBet == Integer.MAX_VALUE) {
 				return res;
 			}
 			if (minBet < 0)
@@ -95,7 +96,7 @@ public class Pot<PlayerId> {
 					minBet = Math.min(minBet, newBets[p]);
 				}
 			}
-			if (minBet == 0) {
+			if (minBet == 0 || minBet == Integer.MAX_VALUE) {
 				return res;
 			}
 			if (minBet < 0)
@@ -114,5 +115,23 @@ public class Pot<PlayerId> {
 			else
 				res.add(new Pot<Integer>(value, players));
 		}
+	}
+
+	@Override
+	public String toString() {
+		return value + " - " + Arrays.toString(players.toArray());
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == null || !(o instanceof Pot<?>))
+			return false;
+		Pot<?> p = (Pot<?>) o;
+		if (p.value != value || p.players.size() != players.size())
+			return false;
+		for (PlayerId id : players)
+			if (!p.players.contains(id))
+				return false;
+		return true;
 	}
 }

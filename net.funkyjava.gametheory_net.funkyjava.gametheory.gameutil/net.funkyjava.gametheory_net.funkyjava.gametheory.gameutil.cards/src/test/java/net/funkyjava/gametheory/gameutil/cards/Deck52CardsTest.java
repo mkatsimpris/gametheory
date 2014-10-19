@@ -2,6 +2,10 @@ package net.funkyjava.gametheory.gameutil.cards;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import java.util.Arrays;
+
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.junit.Test;
@@ -73,5 +77,76 @@ public class Deck52CardsTest {
 				"{} Full Hold'em Heads Up drawings in {}ms, {} drawings per second",
 				nbDrawing, val = (System.currentTimeMillis() - start),
 				nbDrawing * 1000 / val);
+	}
+
+	/**
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testDrawAllGroupsCombinations() throws Exception {
+		log.info("Verifying that drawing all combinations of  2 x 2 cards works well");
+		final boolean[][] created = new boolean[52 * 52][52 * 52];
+		new Deck52Cards().drawAllGroupsCombinations(new int[] { 2, 2 },
+				new CardsGroupsDrawingTask() {
+					int g1;
+					int g2;
+
+					@Override
+					public void doTask(int[][] cardsGroups) {
+						g1 = Math.min(cardsGroups[0][0], cardsGroups[0][1])
+								+ 52
+								* Math.max(cardsGroups[0][0], cardsGroups[0][1]);
+						g2 = Math.min(cardsGroups[1][0], cardsGroups[1][1])
+								+ 52
+								* Math.max(cardsGroups[1][0], cardsGroups[1][1]);
+						assertTrue(
+								"This draw was already created : "
+										+ Arrays.deepToString(cardsGroups),
+								!created[g1][g2]);
+						created[g1][g2] = true;
+					}
+				});
+		for (int c1 = 0; c1 < 52; c1++)
+			for (int c2 = c1 + 1; c2 < 52; c2++) {
+				int g1 = c1 + 52 * c2;
+				for (int c3 = 0; c3 < 52; c3++) {
+					if (c3 == c1 || c3 == c2)
+						continue;
+					for (int c4 = c3 + 1; c4 < 52; c4++) {
+						if (c4 == c1 || c4 == c2)
+							continue;
+						assertTrue("This combination was not created " + c1
+								+ " " + c2 + " " + c3 + " " + c4,
+								created[g1][c3 + 52 * c4]);
+					}
+				}
+			}
+
+	}
+
+	private static class CountingDrawingTask implements CardsGroupsDrawingTask {
+		@Getter
+		private long count = 0;
+
+		@Override
+		public void doTask(int[][] cardsGroups) {
+			count++;
+		}
+
+	}
+
+	/**
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testDrawRiver() throws Exception {
+		log.info("Verifying how long it takes to draw all 2x5 cards groups (like NLHE hole cards + flop/turn/river)");
+		long start = System.currentTimeMillis();
+		CountingDrawingTask task = new CountingDrawingTask();
+		new Deck52Cards().drawAllGroupsCombinations(new int[] { 2, 5 }, task);
+		log.info("Took {} ms, draws count : {}", System.currentTimeMillis()
+				- start, task.getCount());
 	}
 }

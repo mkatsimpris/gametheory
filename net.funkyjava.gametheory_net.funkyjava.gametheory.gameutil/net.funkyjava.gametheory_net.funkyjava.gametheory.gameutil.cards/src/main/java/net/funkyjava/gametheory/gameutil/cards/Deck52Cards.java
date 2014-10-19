@@ -38,6 +38,8 @@ import org.apache.commons.math3.random.RandomGenerator;
  * 
  */
 public class Deck52Cards {
+	/** The offset of the cards indexes */
+	private final int offset;
 	/** The persistent deck */
 	private final int[] deck = new int[52];
 	/** Deck for one-shot draws */
@@ -60,6 +62,29 @@ public class Deck52Cards {
 	 *            1, cards index will be between 1 and 52
 	 */
 	public Deck52Cards(int offset) {
+		this.offset = offset;
+		for (i = 0; i < 52; i++)
+			oneShotDeck[i] = deck[i] = (i + offset);
+	}
+
+	/**
+	 * The constructor
+	 * 
+	 * @param cardsSpec
+	 *            cards specification defining the cards indexes offset
+	 */
+	public Deck52Cards(IntCardsSpec cardsSpec) {
+		this.offset = cardsSpec.getOffset();
+		for (i = 0; i < 52; i++)
+			oneShotDeck[i] = deck[i] = (i + offset);
+	}
+
+	/**
+	 * The constructor for offset zero.
+	 * 
+	 */
+	public Deck52Cards() {
+		this.offset = 0;
 		for (i = 0; i < 52; i++)
 			oneShotDeck[i] = deck[i] = (i + offset);
 	}
@@ -127,5 +152,76 @@ public class Deck52Cards {
 	 */
 	public int getSize() {
 		return 52 - drawed;
+	}
+
+	/**
+	 * Recursively and exhaustively draw all possible cards groups combination
+	 * 
+	 * @param groupsSizes
+	 *            sizes fo the groups of cards
+	 * @param task
+	 *            task to execute for each draw
+	 */
+	public void drawAllGroupsCombinations(int[] groupsSizes,
+			CardsGroupsDrawingTask task) {
+		final int nbGroups = groupsSizes.length;
+		final int[][] cardsGroups = new int[nbGroups][];
+		final boolean[] inUse = new boolean[52];
+		for (int g = 0; g < nbGroups; g++)
+			cardsGroups[g] = new int[groupsSizes[g]];
+		enumCards(0, 0, 0, cardsGroups, inUse, task);
+	}
+
+	private boolean enumCards(int minCard, int g, int c, int[][] cardsGroups,
+			boolean[] inUse, CardsGroupsDrawingTask task) {
+		boolean res = false;
+		if (c < cardsGroups[g].length - 1) {
+			for (int card = minCard; card < 52; card++) {
+				if (inUse[card])
+					continue;
+				inUse[card] = true;
+				cardsGroups[g][c] = card + offset;
+				if (!enumCards(card + 1, g, c + 1, cardsGroups, inUse, task)) {
+					inUse[card] = false;
+					break;
+				}
+				res = true;
+				inUse[card] = false;
+			}
+		} else if (g < cardsGroups.length - 1) {
+			for (int card = minCard; card < 52; card++) {
+				if (inUse[card])
+					continue;
+				inUse[card] = true;
+				cardsGroups[g][c] = card + offset;
+				if (!enumCards(0, g + 1, 0, cardsGroups, inUse, task)) {
+					inUse[card] = false;
+					break;
+				}
+				res = true;
+				inUse[card] = false;
+			}
+		} else {
+			for (int card = minCard; card < 52; card++) {
+				if (inUse[card])
+					continue;
+				res = true;
+				cardsGroups[g][c] = card + offset;
+				task.doTask(cardsGroups);
+			}
+		}
+		return res;
+	}
+
+	public static boolean areEquivalent(IntCardsSpec specs1, IntCardsSpec specs2) {
+		if (specs1 == specs2)
+			return true;
+		if (specs1.getOffset() != specs2.getOffset())
+			return false;
+		for (int i = specs1.getOffset(); i < specs1.getOffset() + 52; i++)
+			if (specs1.getStandardColor(i) != specs2.getStandardColor(i)
+					|| specs1.getStandardRank(i) != specs2.getStandardRank(i))
+				return false;
+		return true;
 	}
 }

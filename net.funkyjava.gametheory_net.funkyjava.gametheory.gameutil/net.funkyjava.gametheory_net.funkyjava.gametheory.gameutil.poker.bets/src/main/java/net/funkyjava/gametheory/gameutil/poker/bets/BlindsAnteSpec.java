@@ -22,4 +22,5 @@ public class BlindsAnteSpec {
 
 	@Getter
 	private final boolean[] shouldPostEnteringBb;
+	
 }
