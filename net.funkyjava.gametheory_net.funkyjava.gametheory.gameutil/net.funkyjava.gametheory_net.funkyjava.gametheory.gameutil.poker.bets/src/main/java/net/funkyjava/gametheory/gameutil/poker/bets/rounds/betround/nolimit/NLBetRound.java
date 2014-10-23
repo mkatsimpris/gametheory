@@ -22,6 +22,8 @@ import net.funkyjava.gametheory.gameutil.poker.bets.rounds.betround.RaiseRange;
 import net.funkyjava.gametheory.gameutil.poker.bets.rounds.data.PlayersData;
 
 /**
+ * No-limit bet round state machine
+ * 
  * @author Pierre Mardon
  * 
  */
@@ -42,6 +44,12 @@ public class NLBetRound implements Cloneable {
 	private RoundState state;
 	private final List<Move<Integer>> seq = new LinkedList<>();
 
+	/**
+	 * Constructor
+	 * 
+	 * @param startRoundData
+	 *            data to start the bet round
+	 */
 	public NLBetRound(BetRoundStartData startRoundData) {
 		checkStartData(startRoundData);
 		seq.clear();
@@ -121,22 +129,47 @@ public class NLBetRound implements Cloneable {
 				"It seems like a direct showdown...");
 	}
 
+	/**
+	 * Get the players data
+	 * 
+	 * @return the players data
+	 */
 	public PlayersData getData() {
 		return new PlayersData(inHand.clone(), stacks.clone(), bets.clone());
 	}
 
+	/**
+	 * Get the number of performed moves in this round
+	 * 
+	 * @return the number of moves
+	 */
 	public int getNbMoves() {
 		return seq.size();
 	}
 
+	/**
+	 * Get the performed moves in this round
+	 * 
+	 * @return the moves
+	 */
 	public List<Move<Integer>> getMoves() {
 		return Collections.unmodifiableList(seq);
 	}
 
+	/**
+	 * Get the current state of the round
+	 * 
+	 * @return the current state of the round
+	 */
 	public RoundState getState() {
 		return state;
 	}
 
+	/**
+	 * Get the player expected to do a move
+	 * 
+	 * @return the active player
+	 */
 	public int getCurrentPlayer() {
 		checkState(state == RoundState.WAITING_MOVE,
 				"Wrong state %s to ask for active player", state);
@@ -146,6 +179,11 @@ public class NLBetRound implements Cloneable {
 		return player;
 	}
 
+	/**
+	 * Get the raise range for the active player
+	 * 
+	 * @return active player's raise range
+	 */
 	public RaiseRange getRaiseRange() {
 		checkState(state == RoundState.WAITING_MOVE,
 				"Wrong state %s to ask for possible moves", state);
@@ -158,6 +196,11 @@ public class NLBetRound implements Cloneable {
 		return new RaiseRange(bets[player], highestBet + lastRaise, fullStack);
 	}
 
+	/**
+	 * Get the call value for the active player
+	 * 
+	 * @return the call value
+	 */
 	public CallValue getCallValue() {
 		checkState(state == RoundState.WAITING_MOVE,
 				"Wrong state %s to ask for possible moves", state);
@@ -165,12 +208,23 @@ public class NLBetRound implements Cloneable {
 		return new CallValue(call, call - bets[player]);
 	}
 
+	/**
+	 * Get the bet range for the active player
+	 * 
+	 * @return the bet range
+	 */
 	public BetRange getBetRange() {
 		if (betSubRound > 0)
 			return BetRange.getNoRange();
 		return new BetRange(Math.min(stacks[player], bigBlind), stacks[player]);
 	}
 
+	/**
+	 * Perform a move
+	 * 
+	 * @param m
+	 *            the move to perform
+	 */
 	public void doMove(Move<Integer> m) {
 		checkState(state == RoundState.WAITING_MOVE,
 				"Round state is %s, cannot do any move.", state);
@@ -300,6 +354,11 @@ public class NLBetRound implements Cloneable {
 		return new NLBetRound(this);
 	}
 
+	/**
+	 * Get the {@link BetChoice} of the active player
+	 * 
+	 * @return the bet choice
+	 */
 	public BetChoice getBetChoice() {
 		checkState(state == RoundState.WAITING_MOVE,
 				"Wrong state %s to ask for active player bet choice", state);

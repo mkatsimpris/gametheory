@@ -14,7 +14,11 @@ import java.util.List;
 import lombok.Getter;
 
 /**
+ * Representation of the pot and all players that contributed to it
+ * 
  * @author Pierre Mardon
+ * @param <PlayerId>
+ *            the players ids class
  * 
  */
 public class Pot<PlayerId> {
@@ -25,7 +29,12 @@ public class Pot<PlayerId> {
 	private final List<PlayerId> players;
 
 	/**
+	 * Constructor
 	 * 
+	 * @param value
+	 *            the value of the pot
+	 * @param players
+	 *            the contributing players
 	 */
 	public Pot(int value, List<PlayerId> players) {
 		this.value = value;
@@ -36,14 +45,41 @@ public class Pot<PlayerId> {
 		this.value = value;
 	}
 
+	/**
+	 * Get a copy of this pot for another representation of players ids
+	 * 
+	 * @param <Id>
+	 *            the new players ids class
+	 * @param players
+	 *            the contributing players
+	 * @return the new pot representation
+	 */
 	public <Id> Pot<Id> getCopy(List<Id> players) {
+		checkArgument(
+				this.players.size() == players.size(),
+				"The new representation of contributing players has not the same number of members of the original list");
 		return new Pot<Id>(value, players);
 	}
 
+	/**
+	 * Check if this pot is an excedent bet
+	 * 
+	 * @return true when there is only one contributing player
+	 */
 	public boolean isExcedentBet() {
 		return players.size() == 1;
 	}
 
+	/**
+	 * Create pots with players bets and in-hand data for players ids integer
+	 * index representation
+	 * 
+	 * @param bets
+	 *            the indexed bets
+	 * @param inHand
+	 *            the indexed in-hand state
+	 * @return the list of pots
+	 */
 	public static List<Pot<Integer>> getPots(int[] bets, boolean[] inHand) {
 		int nbPlayers = bets.length;
 		checkArgument(nbPlayers == inHand.length,
@@ -79,6 +115,18 @@ public class Pot<PlayerId> {
 		}
 	}
 
+	/**
+	 * Create pots with players bets and in-hand data for players ids integer
+	 * index representation, based on previously created pots
+	 * 
+	 * @param lastPot
+	 *            the previously created pots
+	 * @param bets
+	 *            the indexed bets
+	 * @param inHand
+	 *            the indexed in-hand state
+	 * @return the list of pots
+	 */
 	public static List<Pot<Integer>> getPots(Pot<Integer> lastPot, int[] bets,
 			boolean[] inHand) {
 		int nbPlayers = bets.length;

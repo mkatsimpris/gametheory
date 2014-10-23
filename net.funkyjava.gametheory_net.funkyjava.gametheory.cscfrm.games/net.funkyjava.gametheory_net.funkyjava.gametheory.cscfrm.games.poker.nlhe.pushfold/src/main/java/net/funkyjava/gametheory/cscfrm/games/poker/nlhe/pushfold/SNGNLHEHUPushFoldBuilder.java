@@ -9,7 +9,7 @@ import java.util.List;
 import net.funkyjava.gametheory.cscfrm.model.game.CSCFRMGameBuilder;
 import net.funkyjava.gametheory.cscfrm.model.game.cyclic.CSCFRMCyclicStepsGameBuilder;
 import net.funkyjava.gametheory.cscfrm.model.game.nodes.PlayerNode;
-import net.funkyjava.gametheory.gameutil.poker.he.handeval.HoldemEvaluatorProvider;
+import net.funkyjava.gametheory.gameutil.poker.he.handeval.Holdem7CardsEvaluatorProvider;
 
 /**
  * Builder for NLHE HU Push/Fold constant blinds SNG
@@ -40,7 +40,7 @@ public class SNGNLHEHUPushFoldBuilder<PNode extends PlayerNode> implements
 	 *            of the granularity
 	 * 
 	 */
-	public SNGNLHEHUPushFoldBuilder(HoldemEvaluatorProvider evalProvider,
+	public SNGNLHEHUPushFoldBuilder(Holdem7CardsEvaluatorProvider evalProvider,
 			int sb, int bb, int startingStack, int granularity) {
 		this.uid = "SNG-NLHEHUPushFold-" + startingStack + "-" + granularity;
 		for (int sbStack = granularity; sbStack < startingStack * 2; sbStack += granularity)

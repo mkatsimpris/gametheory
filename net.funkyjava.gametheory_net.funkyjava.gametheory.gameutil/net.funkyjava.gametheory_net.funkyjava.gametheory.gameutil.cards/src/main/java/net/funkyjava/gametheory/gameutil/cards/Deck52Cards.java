@@ -38,6 +38,7 @@ import org.apache.commons.math3.random.RandomGenerator;
  * 
  */
 public class Deck52Cards {
+
 	/** The offset of the cards indexes */
 	private final int offset;
 	/** The persistent deck */
@@ -62,9 +63,7 @@ public class Deck52Cards {
 	 *            1, cards index will be between 1 and 52
 	 */
 	public Deck52Cards(int offset) {
-		this.offset = offset;
-		for (i = 0; i < 52; i++)
-			oneShotDeck[i] = deck[i] = (i + offset);
+		this(new DefaultIntCardsSpecs(offset));
 	}
 
 	/**
@@ -84,9 +83,7 @@ public class Deck52Cards {
 	 * 
 	 */
 	public Deck52Cards() {
-		this.offset = 0;
-		for (i = 0; i < 52; i++)
-			oneShotDeck[i] = deck[i] = (i + offset);
+		this(new DefaultIntCardsSpecs(0));
 	}
 
 	/**
@@ -207,21 +204,11 @@ public class Deck52Cards {
 					continue;
 				res = true;
 				cardsGroups[g][c] = card + offset;
-				task.doTask(cardsGroups);
+				if (!task.doTask(cardsGroups))
+					return false;
 			}
 		}
 		return res;
 	}
 
-	public static boolean areEquivalent(IntCardsSpec specs1, IntCardsSpec specs2) {
-		if (specs1 == specs2)
-			return true;
-		if (specs1.getOffset() != specs2.getOffset())
-			return false;
-		for (int i = specs1.getOffset(); i < specs1.getOffset() + 52; i++)
-			if (specs1.getStandardColor(i) != specs2.getStandardColor(i)
-					|| specs1.getStandardRank(i) != specs2.getStandardRank(i))
-				return false;
-		return true;
-	}
 }

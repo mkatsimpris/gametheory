@@ -3,16 +3,32 @@ package net.funkyjava.gametheory.gameutil.cards.indexing;
 import static com.google.common.base.Preconditions.checkArgument;
 import lombok.NonNull;
 import net.funkyjava.gametheory.gameutil.cards.IntCardsSpec;
-import net.funkyjava.gametheory.gameutil.cards.indexing.bucketting.IndexerBuckets;
+import net.funkyjava.gametheory.gameutil.cards.indexing.bucketing.IndexerBuckets;
 
+/**
+ * {@link CardsGroupsIndexer} built on top of another one and an
+ * {@link IndexerBuckets}
+ * 
+ * @author Pierre Mardon
+ * 
+ */
 public class CardsGroupBucketIndexer implements CardsGroupsIndexer {
 	private final CardsGroupsIndexer baseIndexer;
 	private final int[] buckets;
 	private final int nbBuckets;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param baseIndexer
+	 *            the base indexer
+	 * @param buckets
+	 *            the buckets for the base indexer
+	 */
 	public CardsGroupBucketIndexer(@NonNull CardsGroupsIndexer baseIndexer,
 			@NonNull IndexerBuckets buckets) {
-		checkArgument(baseIndexer.getIndexSize() == buckets.getBuckets().length,
+		checkArgument(
+				baseIndexer.getIndexSize() == buckets.getBuckets().length,
 				"Buckets must be the same length as the indexer size !");
 		this.baseIndexer = baseIndexer;
 		this.buckets = buckets.getBuckets();

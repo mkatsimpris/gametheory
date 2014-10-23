@@ -93,7 +93,7 @@ public class Deck52CardsTest {
 					int g2;
 
 					@Override
-					public void doTask(int[][] cardsGroups) {
+					public boolean doTask(int[][] cardsGroups) {
 						g1 = Math.min(cardsGroups[0][0], cardsGroups[0][1])
 								+ 52
 								* Math.max(cardsGroups[0][0], cardsGroups[0][1]);
@@ -105,6 +105,7 @@ public class Deck52CardsTest {
 										+ Arrays.deepToString(cardsGroups),
 								!created[g1][g2]);
 						created[g1][g2] = true;
+						return true;
 					}
 				});
 		for (int c1 = 0; c1 < 52; c1++)
@@ -130,8 +131,9 @@ public class Deck52CardsTest {
 		private long count = 0;
 
 		@Override
-		public void doTask(int[][] cardsGroups) {
+		public boolean doTask(int[][] cardsGroups) {
 			count++;
+			return true;
 		}
 
 	}

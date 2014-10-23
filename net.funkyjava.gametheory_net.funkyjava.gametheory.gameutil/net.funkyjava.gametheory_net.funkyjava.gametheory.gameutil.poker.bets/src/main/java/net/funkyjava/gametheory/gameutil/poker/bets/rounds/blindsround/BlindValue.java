@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
+ * Represents a blind value a player is expected to pay
+ * 
  * @author Pierre Mardon
  * 
  */
@@ -14,8 +16,21 @@ import lombok.Data;
 @AllArgsConstructor
 public class BlindValue {
 
+	/**
+	 * Type of the blind
+	 * 
+	 * @author Pierre Mardon
+	 * 
+	 */
 	public static enum Type {
-		SB, BB
+		/**
+		 * Small blind
+		 */
+		SB,
+		/**
+		 * Big blind
+		 */
+		BB
 	}
 
 	private Type type;

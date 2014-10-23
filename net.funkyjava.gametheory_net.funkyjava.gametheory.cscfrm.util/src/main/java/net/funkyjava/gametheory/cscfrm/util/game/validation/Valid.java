@@ -13,6 +13,7 @@ import net.funkyjava.gametheory.cscfrm.model.game.CSCFRMGameBuilder;
 import net.funkyjava.gametheory.cscfrm.model.game.cyclic.CSCFRMCyclicStepsGameBuilder;
 import net.funkyjava.gametheory.cscfrm.model.game.nodes.Node;
 import net.funkyjava.gametheory.cscfrm.model.game.nodes.PlayerNode;
+import net.funkyjava.gametheory.cscfrm.model.game.nodes.TerminalNode;
 import net.funkyjava.gametheory.cscfrm.model.game.nodes.provider.NodesProvider;
 
 /**

@@ -2,6 +2,12 @@ package net.funkyjava.gametheory.gameutil.poker.he.indexing.djhemlig;
 
 import net.funkyjava.gametheory.gameutil.cards.IntCardsSpec;
 
+/**
+ * Cards specification for Djhemlig indexers
+ * 
+ * @author Pierre Mardon
+ * 
+ */
 public class DjhemligCardsSpec implements IntCardsSpec {
 
 	@Override
@@ -27,6 +33,11 @@ public class DjhemligCardsSpec implements IntCardsSpec {
 	@Override
 	public boolean sameRank(int card1, int card2) {
 		return card1 / 4 == card2 / 4;
+	}
+
+	@Override
+	public int getCard(int stdRank, int stdColor) {
+		return stdColor + 4 * stdRank;
 	}
 
 }

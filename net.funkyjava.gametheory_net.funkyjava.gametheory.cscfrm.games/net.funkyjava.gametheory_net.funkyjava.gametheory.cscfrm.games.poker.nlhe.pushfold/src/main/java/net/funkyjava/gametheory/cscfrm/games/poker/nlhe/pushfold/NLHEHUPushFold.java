@@ -16,10 +16,10 @@ import net.funkyjava.gametheory.cscfrm.model.game.nodes.PlayerNode;
 import net.funkyjava.gametheory.cscfrm.model.game.nodes.TerminalNode;
 import net.funkyjava.gametheory.cscfrm.model.game.nodes.provider.NodesProvider;
 import net.funkyjava.gametheory.cscfrm.util.game.helpers.ArraysIterator;
-import net.funkyjava.gametheory.gameutil.cards.CardsStrings;
+import net.funkyjava.gametheory.gameutil.cards.Cards52Strings;
 import net.funkyjava.gametheory.gameutil.cards.Deck52Cards;
 import net.funkyjava.gametheory.gameutil.cards.IntCardsSpec;
-import net.funkyjava.gametheory.gameutil.poker.he.handeval.HoldemEvaluator;
+import net.funkyjava.gametheory.gameutil.poker.he.handeval.Holdem7CardsEvaluator;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -40,17 +40,17 @@ public class NLHEHUPushFold<PNode extends PlayerNode> implements
 			r1 = i / 13;
 			r2 = i % 13;
 			if (r1 > r2) {
-				holeCardsStr[i] = CardsStrings.ranks[r1]
-						+ CardsStrings.ranks[r2] + "s";
+				holeCardsStr[i] = Cards52Strings.ranks[r1]
+						+ Cards52Strings.ranks[r2] + "s";
 				continue;
 			}
 			if (r1 < r2) {
-				holeCardsStr[i] = CardsStrings.ranks[r2]
-						+ CardsStrings.ranks[r1] + "o";
+				holeCardsStr[i] = Cards52Strings.ranks[r2]
+						+ Cards52Strings.ranks[r1] + "o";
 				continue;
 			}
-			holeCardsStr[i] = CardsStrings.ranks[r1]
-					+ CardsStrings.ranks[r1] + " ";
+			holeCardsStr[i] = Cards52Strings.ranks[r1]
+					+ Cards52Strings.ranks[r1] + " ";
 		}
 	}
 
@@ -61,7 +61,7 @@ public class NLHEHUPushFold<PNode extends PlayerNode> implements
 	private boolean debug = false;
 	private final Deck52Cards deck;
 	private final int deckOffset;
-	private final HoldemEvaluator eval;
+	private final Holdem7CardsEvaluator eval;
 
 	private final TerminalNode sbWinsAllIn, bbWinsAllIn, sbFold, bbFold, tie;
 	private final ChanceNode distribSbCards, distribBbCards, distribBoard;
@@ -99,7 +99,7 @@ public class NLHEHUPushFold<PNode extends PlayerNode> implements
 	 *            Holdem hand evaluator
 	 */
 	public NLHEHUPushFold(NodesProvider<PNode> nodesProvider, int sb, int bb,
-			int stackSb, int stackBb, HoldemEvaluator eval) {
+			int stackSb, int stackBb, Holdem7CardsEvaluator eval) {
 		this(nodesProvider, sb, bb, stackSb, stackBb, 0, false, eval);
 	}
 
@@ -125,7 +125,7 @@ public class NLHEHUPushFold<PNode extends PlayerNode> implements
 	 * 
 	 */
 	public NLHEHUPushFold(NodesProvider<PNode> nodesProvider, int sb, int bb,
-			int stackSb, int stackBb, int granularity, HoldemEvaluator eval) {
+			int stackSb, int stackBb, int granularity, Holdem7CardsEvaluator eval) {
 		this(nodesProvider, sb, bb, stackSb, stackBb, granularity, true, eval);
 	}
 
@@ -137,7 +137,7 @@ public class NLHEHUPushFold<PNode extends PlayerNode> implements
 	 * @param eval
 	 *            an holdem evaluator
 	 */
-	public NLHEHUPushFold(NLHEHUPushFold<PNode> source, HoldemEvaluator eval) {
+	public NLHEHUPushFold(NLHEHUPushFold<PNode> source, Holdem7CardsEvaluator eval) {
 		this.immediateAllIn = source.immediateAllIn;
 		this.justSbCall = source.justSbCall;
 		this.bbChoice = source.bbChoice;
@@ -187,7 +187,7 @@ public class NLHEHUPushFold<PNode extends PlayerNode> implements
 	@SuppressWarnings("unchecked")
 	private NLHEHUPushFold(NodesProvider<PNode> nodesProvider, int sb, int bb,
 			int stackSb, int stackBb, int granularity, boolean isSng,
-			HoldemEvaluator eval) {
+			Holdem7CardsEvaluator eval) {
 		checkNotNull(nodesProvider, "Nodes provider is null");
 		checkArgument(sb >= 0, "Small blind must be >= 0");
 		checkArgument(bb >= 0, "Big blind must be >= 0");
@@ -341,7 +341,7 @@ public class NLHEHUPushFold<PNode extends PlayerNode> implements
 		System.arraycopy(intCards, 0, p1CardsInt, 0, 2);
 		System.arraycopy(intCards, 2, p2CardsInt, 0, 2);
 		System.arraycopy(intCards, 4, boardCardsInt, 0, 5);
-		allInResult = eval.compareHands(p1CardsInt, p2CardsInt, boardCardsInt);
+		allInResult = eval.compare7CardsHands(p1CardsInt, p2CardsInt, boardCardsInt);
 		p1Cards = cardsHands[p1CardsInt[0] - deckOffset][p1CardsInt[1]
 				- deckOffset];
 		p2Cards = cardsHands[p2CardsInt[0] - deckOffset][p2CardsInt[1]

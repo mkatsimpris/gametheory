@@ -8,12 +8,18 @@ import lombok.Getter;
 import lombok.NonNull;
 
 /**
+ * Represents a choice a player has to make, containing all options : bet, raise
+ * call but fold (always available)
+ * 
  * @author Pierre Mardon
  * 
  */
 @AllArgsConstructor
 public class BetChoice {
 
+	/**
+	 * Constructor
+	 */
 	public BetChoice() {
 		this.betRange = BetRange.getNoRange();
 		this.raiseRange = RaiseRange.getNoRange();
@@ -36,6 +42,11 @@ public class BetChoice {
 	@Getter
 	private final int player;
 
+	/**
+	 * Check if this choice is valid
+	 * 
+	 * @return true when valid
+	 */
 	public boolean exists() {
 		return player >= 0 && callValue.isValid();
 	}

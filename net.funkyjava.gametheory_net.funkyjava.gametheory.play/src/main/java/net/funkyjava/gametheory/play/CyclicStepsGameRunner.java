@@ -2,10 +2,10 @@ package net.funkyjava.gametheory.play;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import lombok.extern.slf4j.Slf4j;
 import net.funkyjava.gametheory.commonmodel.game.CyclicStepsGamePositionMapper;
 import net.funkyjava.gametheory.commonmodel.game.GameTreeWalker;
-import lombok.extern.slf4j.Slf4j;
-
+import net.funkyjava.gametheory.commonmodel.game.nodes.MinPublicNode;
 
 /**
  * <p>
@@ -15,8 +15,8 @@ import lombok.extern.slf4j.Slf4j;
  * </p>
  * <p>
  * The method {@link MinPublicNode#getId()} of terminal nodes provided by each
- * of the {@link GameTreeWalker} are mapped to step games indexes in the array of
- * {@link GameRunnerArgs} provided to the constructor.
+ * of the {@link GameTreeWalker} are mapped to step games indexes in the array
+ * of {@link GameRunnerArgs} provided to the constructor.
  * </p>
  * 
  * @author Pierre Mardon

@@ -4,10 +4,12 @@
 package net.funkyjava.gametheory.cscfrm.util.game.validation;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import lombok.extern.slf4j.Slf4j;
 import net.funkyjava.gametheory.cscfrm.core.engine.CSCFRMTerminalUtilReader;
 import net.funkyjava.gametheory.cscfrm.model.game.CSCFRMGame;
+import net.funkyjava.gametheory.cscfrm.model.game.nodes.Node;
 import net.funkyjava.gametheory.cscfrm.model.game.nodes.PlayerNode;
-import lombok.extern.slf4j.Slf4j;
+import net.funkyjava.gametheory.cscfrm.model.game.nodes.TerminalNode;
 
 /**
  * Validator class for {@link CSCFRMGame}

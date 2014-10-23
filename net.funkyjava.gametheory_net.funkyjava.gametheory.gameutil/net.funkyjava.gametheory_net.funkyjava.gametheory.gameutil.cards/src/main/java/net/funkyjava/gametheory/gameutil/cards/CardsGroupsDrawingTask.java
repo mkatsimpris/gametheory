@@ -12,6 +12,7 @@ public interface CardsGroupsDrawingTask {
 	 * 
 	 * @param cardsGroups
 	 *            the grouped cards of a draw
+	 * @return continue drawing boolean
 	 */
-	void doTask(int[][] cardsGroups);
+	boolean doTask(int[][] cardsGroups);
 }

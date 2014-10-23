@@ -62,6 +62,9 @@ public interface CardsGroupsIndexer {
 	/**
 	 * Check if this indexer is compatible with a game
 	 * 
+	 * @param gameId
+	 *            the string representation of the game
+	 * 
 	 * @return compatibility boolean
 	 */
 	public boolean isCompatible(String gameId);

@@ -21,9 +21,15 @@ import net.funkyjava.gametheory.gameutil.poker.bets.rounds.data.PlayersData;
 import net.funkyjava.gametheory.gameutil.poker.bets.tree.model.BetNode;
 import net.funkyjava.gametheory.gameutil.poker.bets.tree.model.PotsNodes;
 
+/**
+ * Class to build a hand reduced bet tree via it's method
+ * {@link #getBetTree(NLHandRounds, BetRangeSlicer)}
+ * 
+ * @author Pierre Mardon
+ * 
+ */
 @Slf4j
 public class HandBetTreeBuilder {
-	// TODO check return value of all calls to hand.*
 	private final RoundBetTreeBuilder[] rounds;
 	private final BetRangeSlicer slicer;
 	private final NLHandRounds baseHand;
@@ -40,7 +46,7 @@ public class HandBetTreeBuilder {
 		this.baseHand = hand;
 	};
 
-	public BettingTree getBettingTree() {
+	private BettingTree getBettingTree() {
 		createNodeRec(baseHand, 1, 0);
 		log.info("End generating bet tree, {} nodes created ", nbNodesCreated);
 		RoundBetTree[] res = new RoundBetTree[rounds.length];
@@ -50,10 +56,7 @@ public class HandBetTreeBuilder {
 	}
 
 	private int createNodeRec(NLHandRounds hand, int raiseIndex, int moveIndex) {
-		// log.info("Seq : {} - {}", bets, hand.getRoundState());
 		nbNodesCreated++;
-		// if(nbNodesCreated % 10 == 0)
-		// log.info("" + nbNodesCreated);
 		switch (hand.getRoundState()) {
 		case CANCELED:
 			throw new IllegalComponentStateException("Wrong hand state "
@@ -82,12 +85,6 @@ public class HandBetTreeBuilder {
 		final int player = choice.getPlayer();
 		final int[] bets = slicer.slice(hand.getCurrentPots(), playersData,
 				choice, raiseIndex, hand.getBetRoundIndex());
-		// log.info("Possible bets {}", bets);
-		// if (nbNodesCreated == 846803)
-		// log.info("Create bet node moveIndex " + moveIndex + " raiseIndex "
-		// + raiseIndex + " " + playersData + " Round = "
-		// + hand.getBetRoundIndex() + " Bets = "
-		// + Arrays.toString(bets));
 		final BetNode node = new BetNode(player, bets);
 		final int res = moveIndex == 0 ? rounds[hand.getBetRoundIndex()]
 				.findOrCreateStartBetNode(node) : rounds[hand
@@ -95,11 +92,6 @@ public class HandBetTreeBuilder {
 		// Fill the node
 		final int callValue = choice.getCallValue().getValue();
 		for (int i = 0; i < bets.length; i++) {
-			// log.info("Loop " + i + " over " + bets.length + " bets[i] = "
-			// + bets[i] + " callValue " + callValue + " player " + player);
-			// log.info(
-			// "Seq : {} player {} betvalue {} possible bets {} round {}",
-			// this.bets, player, bets[i], bets, hand.getBetRoundIndex());
 			final NLHandRounds newHand = hand.clone();
 			if (bets[i] == BetRangeSlicer.fold) {
 				if (nbNodesCreated == 846803)
@@ -164,6 +156,15 @@ public class HandBetTreeBuilder {
 				.getCurrentPots()));
 	}
 
+	/**
+	 * Build a betting tree for a hand given a {@link BetRangeSlicer}
+	 * 
+	 * @param hand
+	 *            the hand for which the betting tree must be built
+	 * @param slicer
+	 *            the bet range slicer to reduce the bet possibilities
+	 * @return the resulting {@link BettingTree}
+	 */
 	public static BettingTree getBetTree(NLHandRounds hand,
 			BetRangeSlicer slicer) {
 		checkNotNull(hand, "The hand cannot be null");
@@ -173,6 +174,12 @@ public class HandBetTreeBuilder {
 		return new HandBetTreeBuilder(hand, slicer).getBettingTree();
 	}
 
+	/**
+	 * Positively perform all ante and blinds payments when asked
+	 * 
+	 * @param hand
+	 *            the hand to perform payments
+	 */
 	public static void doAnteAndBlinds(NLHandRounds hand) {
 		if (hand.getRoundType() == RoundType.ANTE) {
 			if (hand.getRoundState() == RoundState.WAITING_MOVE) {

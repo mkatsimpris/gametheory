@@ -15,11 +15,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import net.funkyjava.gametheory.cscfrm.core.engine.CSCFRMState;
 import net.funkyjava.gametheory.cscfrm.core.loading.CSCFRMExecutionLoader;
 import net.funkyjava.gametheory.cscfrm.core.loading.CSCFRMExecutionLoaderConfig;
 import net.funkyjava.gametheory.cscfrm.model.game.nodes.PlayerNode;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * The FileChannelLoader class is a simple implementation of
@@ -64,7 +64,7 @@ public class FileChannelLoader<PNode extends PlayerNode> implements
 	private int nbPlayers;
 
 	/** The buffer. */
-	private ByteBuffer buffer = ByteBuffer.allocateDirect(16);;
+	private ByteBuffer buffer = ByteBuffer.allocateDirect(16);
 
 	static {
 		options.add(StandardOpenOption.WRITE);

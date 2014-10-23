@@ -34,7 +34,7 @@ public interface IntCardsSpec {
 	 * Gets consistent "arbitrary" color of a card. In fact it could be not
 	 * arbitrary as it can be used to distribute odd chips when splitting pots.
 	 * For that use only, we state that club = 0, diamond = 1, heart = 2 and
-	 * spade = 3, as exposed by {@link CardsStrings#getColorStr(int)}
+	 * spade = 3, as exposed by {@link Cards52Strings#getColorStr(int)}
 	 * 
 	 * @param card
 	 *            the int card, >= offset && < offset + deckSize
@@ -63,5 +63,16 @@ public interface IntCardsSpec {
 	 * @return true when the cards have the same rank
 	 */
 	boolean sameRank(int card1, int card2);
+
+	/**
+	 * Get a card int representation based on his standard rank and color
+	 * 
+	 * @param stdRank
+	 *            the card's standard rank between 0 and 12 included
+	 * @param stdColor
+	 *            the card's standard color between 0 and 3 included
+	 * @return the card int representation
+	 */
+	int getCard(int stdRank, int stdColor);
 
 }

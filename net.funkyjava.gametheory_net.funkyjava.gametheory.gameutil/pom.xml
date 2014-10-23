@@ -27,5 +27,7 @@
 		<module>net.funkyjava.gametheory_net.funkyjava.gametheory.gameutil.poker.he.handeval.twoplustwo</module>
 		<module>net.funkyjava.gametheory_net.funkyjava.gametheory.gameutil.poker.bets</module>
 		<module>net.funkyjava.gametheory_net.funkyjava.gametheory.gameutil.poker.he.indexing.djhemlig</module>
+		<module>net.funkyjava.gametheory_net.funkyjava.gametheory.gameutil.poker.he.evaluators</module>
+		<module>net.funkyjava.gametheory_net.funkyjava.gametheory.gameutil.cards.indexing.bucketing.kmeans</module>
 	</modules>
 </project>

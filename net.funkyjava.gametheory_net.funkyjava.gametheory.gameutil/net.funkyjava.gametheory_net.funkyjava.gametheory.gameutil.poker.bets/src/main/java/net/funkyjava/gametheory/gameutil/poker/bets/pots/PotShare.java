@@ -7,8 +7,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
+ * Share from a pot earned by a player
+ * 
  * @author Pierre Mardon
  * 
+ * @param <Id>
+ *            the players ids class
  */
 @AllArgsConstructor
 public class PotShare<Id> {

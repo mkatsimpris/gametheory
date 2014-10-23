@@ -19,6 +19,10 @@ import net.funkyjava.gametheory.gameutil.poker.bets.rounds.data.BlindsAnteParame
 import net.funkyjava.gametheory.gameutil.poker.bets.rounds.data.PlayersData;
 
 /**
+ * Represents a blinds "round". The choice was made to call it a round as it
+ * represents a determined step between ante or the hand start and the first bet
+ * round.
+ * 
  * @author Pierre Mardon
  * 
  */
@@ -33,8 +37,6 @@ public class BlindsRound implements Cloneable {
 	private final int sbValue, bbValue, bbIndex, sbIndex;
 	private final List<Move<Integer>> seq = new LinkedList<>();
 	private RoundState state = RoundState.WAITING_MOVE;
-
-	// TODO maintain and check state
 
 	private BlindsRound(BlindsRound src) {
 		this.nbPlayers = src.nbPlayers;
@@ -52,6 +54,10 @@ public class BlindsRound implements Cloneable {
 	}
 
 	/**
+	 * Constructor.
+	 * 
+	 * @param initState
+	 *            the parameters for initializing this blinds round
 	 * 
 	 */
 	public BlindsRound(BlindsAnteParameters initState) {
@@ -92,6 +98,9 @@ public class BlindsRound implements Cloneable {
 		payed = new boolean[nbPlayers];
 	}
 
+	/**
+	 * Make blinds payments expire, setting out of hand all not paying players
+	 */
 	public void expiration() {
 		for (int p = 0; p < nbPlayers; p++)
 			if (inHand[p] && !payed[p] && p == sbIndex || p == bbIndex
@@ -100,6 +109,11 @@ public class BlindsRound implements Cloneable {
 		updateState();
 	}
 
+	/**
+	 * Get the current {@link RoundState}
+	 * 
+	 * @return the current {@link RoundState}
+	 */
 	public RoundState getState() {
 		return state;
 	}
@@ -131,12 +145,23 @@ public class BlindsRound implements Cloneable {
 			this.state = RoundState.SHOWDOWN;
 	}
 
+	/**
+	 * Check if optional sb and bb players payed their blinds
+	 * 
+	 * @return true when mandatory blinds were payed
+	 */
 	public boolean mandatoryBlindsPayed() {
 		if (sbIndex >= 0 && !payed[sbIndex])
 			return false;
 		return payed[bbIndex];
 	}
 
+	/**
+	 * Check if all potential blinds payer did pay
+	 * 
+	 * @return true when all in hand players payed their blinds when they have
+	 *         to
+	 */
 	public boolean allBlindsPayed() {
 		if (sbIndex >= 0 && !payed[sbIndex])
 			return false;
@@ -149,6 +174,13 @@ public class BlindsRound implements Cloneable {
 		return true;
 	}
 
+	/**
+	 * Get the blind value for a given player that is expected to pay it
+	 * 
+	 * @param playerIndex
+	 *            the target player
+	 * @return the blind value
+	 */
 	public BlindValue getBlindValueForPlayer(int playerIndex) {
 		checkArgument(playerIndex >= 0 && playerIndex < nbPlayers,
 				"Invalid player index %s", playerIndex);
@@ -165,6 +197,12 @@ public class BlindsRound implements Cloneable {
 		throw new IllegalArgumentException("This player cannot pay blinds");
 	}
 
+	/**
+	 * Perform a blind move : pay SB, BB or refuse to pay blinds
+	 * 
+	 * @param move
+	 *            the move to perform
+	 */
 	public void doMove(Move<Integer> move) {
 		checkState(state == RoundState.WAITING_MOVE,
 				"Current blinds round state is %s", state);
@@ -217,10 +255,20 @@ public class BlindsRound implements Cloneable {
 		}
 	}
 
+	/**
+	 * Get the list of moves performed during this blinds round
+	 * 
+	 * @return the list of moves
+	 */
 	public List<Move<Integer>> getMoves() {
 		return Collections.unmodifiableList(seq);
 	}
 
+	/**
+	 * Get the players data (inHand, stacks, bets)
+	 * 
+	 * @return the players data
+	 */
 	public PlayersData getData() {
 		boolean[] currInHand = inHand.clone();
 		for (int i = 0; i < nbPlayers; i++) {
@@ -232,6 +280,11 @@ public class BlindsRound implements Cloneable {
 		return new PlayersData(currInHand, stacks.clone(), bets.clone());
 	}
 
+	/**
+	 * Get the list of players that should pay the bb to enter the hand
+	 * 
+	 * @return the list of players
+	 */
 	public List<Integer> getMissingEnteringBbPlayers() {
 		List<Integer> res = new LinkedList<>();
 		for (int i = 0; i < nbPlayers; i++)
@@ -240,10 +293,20 @@ public class BlindsRound implements Cloneable {
 		return res;
 	}
 
+	/**
+	 * Check if the designated big blind player payed his blind
+	 * 
+	 * @return true when the bb player payed his blind
+	 */
 	public boolean hasBbPayed() {
 		return payed[bbIndex];
 	}
 
+	/**
+	 * Check if the designated small blind player payed his blind
+	 * 
+	 * @return true when the sb player exists and payed his blind
+	 */
 	public boolean hasSbPayed() {
 		return sbIndex >= 0 && payed[sbIndex];
 	}

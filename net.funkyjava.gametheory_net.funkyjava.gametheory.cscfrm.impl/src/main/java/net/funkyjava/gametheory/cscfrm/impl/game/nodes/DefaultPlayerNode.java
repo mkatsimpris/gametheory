@@ -1,7 +1,7 @@
 package net.funkyjava.gametheory.cscfrm.impl.game.nodes;
 
+import net.funkyjava.gametheory.cscfrm.model.game.nodes.Node;
 import net.funkyjava.gametheory.cscfrm.model.game.nodes.PlayerNode;
-
 
 /**
  * The DefaultPlayerNode class.

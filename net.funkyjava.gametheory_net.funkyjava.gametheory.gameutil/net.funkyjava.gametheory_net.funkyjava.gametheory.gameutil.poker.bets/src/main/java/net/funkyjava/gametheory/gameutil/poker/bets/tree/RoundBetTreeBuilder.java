@@ -3,14 +3,25 @@ package net.funkyjava.gametheory.gameutil.poker.bets.tree;
 import java.util.LinkedList;
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
 import net.funkyjava.gametheory.gameutil.poker.bets.tree.model.BetNode;
 
-@Slf4j
+/**
+ * Data class to put bet nodes for a round when building a {@link RoundBetTree}
+ * 
+ * @author Pierre Mardon
+ * 
+ */
 public class RoundBetTreeBuilder {
 	private final List<BetNode> startBetNodes = new LinkedList<>();
 	private final List<BetNode> betNodes = new LinkedList<>();
 
+	/**
+	 * Creates or find a start node for this round
+	 * 
+	 * @param node
+	 *            the node to find or create
+	 * @return the index of the created or found node
+	 */
 	public int findOrCreateStartBetNode(BetNode node) {
 		if (startBetNodes.contains(node)) {
 			return betNodes.indexOf(node);
@@ -20,6 +31,13 @@ public class RoundBetTreeBuilder {
 		return betNodes.size() - 1;
 	}
 
+	/**
+	 * Create a bet node
+	 * 
+	 * @param node
+	 *            the node to create
+	 * @return the index of the created node
+	 */
 	public int createBetNode(BetNode node) {
 		betNodes.add(node);
 		return betNodes.size() - 1;
@@ -38,6 +56,11 @@ public class RoundBetTreeBuilder {
 		return res;
 	}
 
+	/**
+	 * Create the resulting {@link RoundBetTree}
+	 * 
+	 * @return the {@link RoundBetTree} corresponding to the created nodes
+	 */
 	public RoundBetTree build() {
 		return new RoundBetTree(getBetNodes());
 	}

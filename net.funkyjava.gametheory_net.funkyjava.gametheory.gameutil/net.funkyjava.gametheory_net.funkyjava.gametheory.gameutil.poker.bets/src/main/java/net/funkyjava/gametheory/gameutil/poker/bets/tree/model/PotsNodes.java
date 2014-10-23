@@ -6,9 +6,19 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.funkyjava.gametheory.gameutil.poker.bets.pots.Pot;
 
+/**
+ * A terminal node containing pots. Can designate a hand end with or without
+ * showdown
+ * 
+ * @author Pierre Mardon
+ * 
+ */
 @AllArgsConstructor
 public class PotsNodes {
 
+	/**
+	 * The pots list for this node
+	 */
 	@Getter
 	public final List<Pot<Integer>> pots;
 

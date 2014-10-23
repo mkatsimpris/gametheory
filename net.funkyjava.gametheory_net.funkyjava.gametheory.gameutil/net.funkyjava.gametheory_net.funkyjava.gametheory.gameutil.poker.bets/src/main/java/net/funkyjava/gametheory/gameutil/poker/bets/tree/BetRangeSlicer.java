@@ -7,15 +7,23 @@ import net.funkyjava.gametheory.gameutil.poker.bets.rounds.betround.BetChoice;
 import net.funkyjava.gametheory.gameutil.poker.bets.rounds.data.PlayersData;
 
 /**
+ * A {@link BetRangeSlicer} should be able to provide a subset of possible
+ * player bets to build a {@link RoundBetTree}
  * 
  * @author Pierre Mardon
  * 
  */
 public interface BetRangeSlicer {
 
+	/**
+	 * The int fold representation for building bet trees
+	 */
 	public static final int fold = Integer.MIN_VALUE;
 
 	/**
+	 * Get all possible move values. When one is equal to {@link #fold}, means
+	 * fold. Otherwise, means call/bet/raise according to the context
+	 * 
 	 * @param pots
 	 *            current pots
 	 * @param data

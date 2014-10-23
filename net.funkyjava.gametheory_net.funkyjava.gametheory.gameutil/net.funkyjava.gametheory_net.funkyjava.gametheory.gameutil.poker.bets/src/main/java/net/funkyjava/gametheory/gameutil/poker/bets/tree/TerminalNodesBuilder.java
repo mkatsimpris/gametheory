@@ -6,10 +6,23 @@ import java.util.List;
 import net.funkyjava.gametheory.gameutil.poker.bets.pots.Pot;
 import net.funkyjava.gametheory.gameutil.poker.bets.tree.model.PotsNodes;
 
+/**
+ * Builder for {@link TerminalNodes}
+ * 
+ * @author Pierre Mardon
+ * 
+ */
 public class TerminalNodesBuilder {
 	private final List<PotsNodes> showDownNodes = new LinkedList<>();
 	private final List<PotsNodes> noShowDownNodes = new LinkedList<>();
 
+	/**
+	 * Find or create a showdown node
+	 * 
+	 * @param node
+	 *            the node to find or create
+	 * @return the index of the node
+	 */
 	public int findOrCreateShowDownNode(PotsNodes node) {
 		int index = showDownNodes.indexOf(node);
 		if (index >= 0)
@@ -18,6 +31,13 @@ public class TerminalNodesBuilder {
 		return showDownNodes.size() - 1;
 	}
 
+	/**
+	 * Find or create a no-showdown node
+	 * 
+	 * @param node
+	 *            the node to find or create
+	 * @return the index of the node
+	 */
 	public int findOrCreateNoShowDownNode(PotsNodes node) {
 		int index = noShowDownNodes.indexOf(node);
 		if (index >= 0)
@@ -26,11 +46,11 @@ public class TerminalNodesBuilder {
 		return noShowDownNodes.size() - 1;
 	}
 
-	public int[][][] getShowDownNodes() {
+	private int[][][] getShowDownNodes() {
 		return getNodes(showDownNodes);
 	}
 
-	public int[][][] getNoShowDownNodes() {
+	private int[][][] getNoShowDownNodes() {
 		return getNodes(noShowDownNodes);
 	}
 
@@ -52,6 +72,11 @@ public class TerminalNodesBuilder {
 		return res;
 	}
 
+	/**
+	 * Get the compact representation of the terminal nodes
+	 * 
+	 * @return the {@link TerminalNodes}
+	 */
 	public TerminalNodes build() {
 		return new TerminalNodes(getShowDownNodes(), getNoShowDownNodes());
 	}

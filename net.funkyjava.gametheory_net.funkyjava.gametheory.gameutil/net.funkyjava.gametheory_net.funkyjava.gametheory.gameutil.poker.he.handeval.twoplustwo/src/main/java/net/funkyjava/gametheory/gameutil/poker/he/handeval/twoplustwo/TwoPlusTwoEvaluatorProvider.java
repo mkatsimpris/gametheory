@@ -3,8 +3,10 @@
  */
 package net.funkyjava.gametheory.gameutil.poker.he.handeval.twoplustwo;
 
-import net.funkyjava.gametheory.gameutil.poker.he.handeval.HoldemEvaluatorProvider;
-
+import net.funkyjava.gametheory.gameutil.poker.he.handeval.Holdem5CardsEvaluatorProvider;
+import net.funkyjava.gametheory.gameutil.poker.he.handeval.Holdem6CardsEvaluatorProvider;
+import net.funkyjava.gametheory.gameutil.poker.he.handeval.Holdem7CardsEvaluatorProvider;
+import net.funkyjava.gametheory.gameutil.poker.he.handeval.HoldemFullEvaluatorProvider;
 
 /**
  * Provider for {@link TwoPlusTwoEvaluator}. As this evaluator is thread safe,
@@ -13,7 +15,9 @@ import net.funkyjava.gametheory.gameutil.poker.he.handeval.HoldemEvaluatorProvid
  * @author Pierre Mardon
  * 
  */
-public class TwoPlusTwoEvaluatorProvider implements HoldemEvaluatorProvider {
+public class TwoPlusTwoEvaluatorProvider implements
+		HoldemFullEvaluatorProvider, Holdem7CardsEvaluatorProvider,
+		Holdem6CardsEvaluatorProvider, Holdem5CardsEvaluatorProvider {
 
 	private static Object lock = new Object();
 	private static TwoPlusTwoEvaluator eval = null;

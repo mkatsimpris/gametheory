@@ -9,6 +9,8 @@ import net.funkyjava.gametheory.gameutil.poker.bets.rounds.betround.BetChoice;
 import net.funkyjava.gametheory.gameutil.poker.bets.rounds.data.PlayersData;
 
 /**
+ * A sample {@link BetRangeSlicer}. Don't use it for real computing purpose.
+ * 
  * @author Pierre Mardon
  * 
  */
@@ -57,13 +59,11 @@ public class SampleBetRangeSlicer implements BetRangeSlicer {
 		int slice;
 		int min, max;
 		int maxBet = 0;
-		int roundPot = 0;
 		int allPots = 0;
 		for (Pot<Integer> p : pots) {
 			allPots += p.getValue();
 		}
 		for (int i = 0; i < data.getBets().length; i++) {
-			roundPot += data.getBets()[i];
 			allPots += data.getBets()[i];
 			if (data.getBets()[i] > maxBet)
 				maxBet = data.getBets()[i];

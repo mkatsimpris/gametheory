@@ -8,7 +8,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import net.funkyjava.gametheory.cscfrm.model.game.CSCFRMGameBuilder;
 import net.funkyjava.gametheory.cscfrm.model.game.nodes.PlayerNode;
 import net.funkyjava.gametheory.cscfrm.model.game.nodes.provider.NodesProvider;
-import net.funkyjava.gametheory.gameutil.poker.he.handeval.HoldemEvaluatorProvider;
+import net.funkyjava.gametheory.gameutil.poker.he.handeval.Holdem7CardsEvaluatorProvider;
 
 /**
  * Game builder for {@link NLHEHUPushFold}
@@ -23,7 +23,7 @@ public class NLHEHUPushFoldBuilder<PNode extends PlayerNode> implements
 
 	private final int sb, bb, stackSb, stackBb, granularity;
 	private final boolean isSng;
-	private final HoldemEvaluatorProvider evalProvider;
+	private final Holdem7CardsEvaluatorProvider evalProvider;
 
 	/**
 	 * Constructor for not-sng game
@@ -40,7 +40,7 @@ public class NLHEHUPushFoldBuilder<PNode extends PlayerNode> implements
 	 *            the stack of the bb player
 	 * 
 	 */
-	public NLHEHUPushFoldBuilder(HoldemEvaluatorProvider evalProvider, int sb,
+	public NLHEHUPushFoldBuilder(Holdem7CardsEvaluatorProvider evalProvider, int sb,
 			int bb, int stackSb, int stackBb) {
 		checkArgument(sb >= 0, "Small blind must be >= 0");
 		checkArgument(bb >= 0, "Big blind must be >= 0");
@@ -76,7 +76,7 @@ public class NLHEHUPushFoldBuilder<PNode extends PlayerNode> implements
 	 *            of the granularity
 	 * 
 	 */
-	public NLHEHUPushFoldBuilder(HoldemEvaluatorProvider evalProvider, int sb,
+	public NLHEHUPushFoldBuilder(Holdem7CardsEvaluatorProvider evalProvider, int sb,
 			int bb, int stackSb, int stackBb, int granularity) {
 		this.evalProvider = checkNotNull(evalProvider,
 				"Holdem evaluatorprovider is null");

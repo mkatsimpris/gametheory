@@ -9,9 +9,18 @@ import net.funkyjava.gametheory.gameutil.poker.bets.rounds.data.NoBetPlayersData
 
 import org.junit.Test;
 
+/**
+ * Test class for {@link HandBetTreeBuilder} TODO complete test set
+ * 
+ * @author Pierre Mardon
+ * 
+ */
 @Slf4j
 public class HandBetTreeBuilderTest {
 
+	/**
+	 * Simply test the bet tree generation for an arbitrary situation
+	 */
 	@Test
 	public void test() {
 		NoBetPlayersData playersData = new NoBetPlayersData(new int[] { 1000,

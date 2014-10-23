@@ -10,18 +10,20 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import lombok.NonNull;
 import net.funkyjava.gametheory.gameutil.poker.bets.moves.Move;
 import net.funkyjava.gametheory.gameutil.poker.bets.moves.MoveType;
 import net.funkyjava.gametheory.gameutil.poker.bets.rounds.RoundState;
 import net.funkyjava.gametheory.gameutil.poker.bets.rounds.data.BlindsAnteParameters;
 import net.funkyjava.gametheory.gameutil.poker.bets.rounds.data.PlayersData;
-import lombok.NonNull;
 
 /**
+ * State machine for an ante round
+ * 
  * @author Pierre Mardon
  * 
  */
-public class AnteRound implements Cloneable{
+public class AnteRound implements Cloneable {
 	private final int nbPlayers;
 	private final int[] bets;
 	private final int[] stacks;
@@ -32,6 +34,12 @@ public class AnteRound implements Cloneable{
 	private final List<Move<Integer>> seq = new LinkedList<>();
 	private RoundState state = RoundState.WAITING_MOVE;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param data
+	 *            the round's parameters
+	 */
 	public AnteRound(@NonNull BlindsAnteParameters data) {
 		inHand = data.getInHand().clone();
 		stacks = data.getStacks().clone();
@@ -53,7 +61,7 @@ public class AnteRound implements Cloneable{
 		checkArgument(ante > 0, "Ante must be > 0, found %s", ante);
 	}
 
-	private AnteRound(AnteRound src){
+	private AnteRound(AnteRound src) {
 		inHand = src.inHand.clone();
 		stacks = src.stacks.clone();
 		nbPlayers = src.nbPlayers;
@@ -64,11 +72,21 @@ public class AnteRound implements Cloneable{
 		state = src.state;
 		seq.addAll(src.seq);
 	}
-	
+
+	/**
+	 * Get current {@link RoundState}
+	 * 
+	 * @return the current {@link RoundState}
+	 */
 	public RoundState getState() {
 		return state;
 	}
 
+	/**
+	 * Check is the ante round is finished
+	 * 
+	 * @return true when all in-hand players have payed
+	 */
 	public boolean finished() {
 		for (int i = 0; i < nbPlayers; i++)
 			if (inHand[i] && !payed[i])
@@ -76,6 +94,13 @@ public class AnteRound implements Cloneable{
 		return true;
 	}
 
+	/**
+	 * Get the ante value a target player should pay
+	 * 
+	 * @param playerIndex
+	 *            the player's index
+	 * @return the ante value
+	 */
 	public AnteValue getAnteValueForPlayer(int playerIndex) {
 		checkArgument(playerIndex >= 0 && playerIndex < nbPlayers,
 				"Invalid player index %s", playerIndex);
@@ -85,6 +110,12 @@ public class AnteRound implements Cloneable{
 				: new AnteValue(Math.min(ante, stacks[playerIndex]));
 	}
 
+	/**
+	 * Pay the ante for one player, or refuse to pay
+	 * 
+	 * @param move
+	 *            the ante move
+	 */
 	public void doMove(@NonNull Move<Integer> move) {
 		checkState(state == RoundState.WAITING_MOVE,
 				"Current ante round state is %s", state);
@@ -107,6 +138,9 @@ public class AnteRound implements Cloneable{
 		updateState();
 	}
 
+	/**
+	 * Only for cash game : make players that didn't pay expire
+	 */
 	public void expiration() {
 		for (int p = 0; p < nbPlayers; p++)
 			if (inHand[p] && !payed[p])
@@ -133,10 +167,20 @@ public class AnteRound implements Cloneable{
 			this.state = RoundState.SHOWDOWN;
 	}
 
+	/**
+	 * Get the current list of moves of this ante round
+	 * 
+	 * @return the list of ante moves performed
+	 */
 	public List<Move<Integer>> getMoves() {
 		return Collections.unmodifiableList(seq);
 	}
 
+	/**
+	 * Get the current {@link PlayersData}
+	 * 
+	 * @return the players data
+	 */
 	public PlayersData getData() {
 		boolean[] currInHand = inHand.clone();
 		for (int i = 0; i < nbPlayers; i++)
@@ -144,6 +188,11 @@ public class AnteRound implements Cloneable{
 		return new PlayersData(currInHand, stacks.clone(), bets.clone());
 	}
 
+	/**
+	 * Get the list of players that are in hand and didn't pay their antes
+	 * 
+	 * @return the list of players that are in hand and didn't pay their antes
+	 */
 	public List<Integer> getMissingAntePlayers() {
 		List<Integer> res = new LinkedList<>();
 		for (int i = 0; i < nbPlayers; i++)
@@ -152,6 +201,11 @@ public class AnteRound implements Cloneable{
 		return res;
 	}
 
+	/**
+	 * Get the list of players that are in hand and did pay their antes
+	 * 
+	 * @return the list of players that are in hand and did pay their antes
+	 */
 	public List<Integer> getPayedAntePlayers() {
 		List<Integer> res = new LinkedList<>();
 		for (int i = 0; i < nbPlayers; i++)
@@ -159,7 +213,7 @@ public class AnteRound implements Cloneable{
 				res.add(i);
 		return res;
 	}
-	
+
 	@Override
 	public AnteRound clone() {
 		return new AnteRound(this);

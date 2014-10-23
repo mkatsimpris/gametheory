@@ -4,9 +4,47 @@
 package net.funkyjava.gametheory.gameutil.poker.bets.moves;
 
 /**
+ * Enum for {@link Move} types.
+ * 
  * @author Pierre Mardon
  * 
  */
 public enum MoveType {
-	CALL, BET, RAISE, FOLD, ANTE, SB, BB, NO_ANTE, NO_BLIND
+	/**
+	 * Call
+	 */
+	CALL,
+	/**
+	 * Bet
+	 */
+	BET,
+	/**
+	 * Raise
+	 */
+	RAISE,
+	/**
+	 * Fold
+	 * 
+	 */
+	FOLD,
+	/**
+	 * Ante
+	 */
+	ANTE,
+	/**
+	 * Small blind
+	 */
+	SB,
+	/**
+	 * Big blind
+	 */
+	BB,
+	/**
+	 * Refuse to pay ante
+	 */
+	NO_ANTE,
+	/**
+	 * Refuse to pay blind
+	 */
+	NO_BLIND
 }
