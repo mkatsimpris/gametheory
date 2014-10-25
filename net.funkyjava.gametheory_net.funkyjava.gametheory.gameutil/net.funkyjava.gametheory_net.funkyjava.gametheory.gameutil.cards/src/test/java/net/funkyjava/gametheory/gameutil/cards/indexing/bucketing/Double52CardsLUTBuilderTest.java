@@ -100,21 +100,32 @@ public class Double52CardsLUTBuilderTest {
 	@Test
 	public void testBuildAndWriteLUT() throws InterruptedException, IOException {
 		Path path = folder.newFolder("test").toPath().resolve("myLUTTest");
+		testBuildAndWriteLUT(path, true, true);
+		testBuildAndWriteLUT(path, true, false);
+		testBuildAndWriteLUT(path, false, false);
+	}
+
+	private void testBuildAndWriteLUT(Path path, boolean countOccurrences,
+			boolean meanValues) throws InterruptedException, IOException {
 		Double52CardsLUTBuilder.buildAndWriteLUT(indexer, provider, new int[] {
-				2, 2 }, 7, false, "", path, true);
-		log.info("Reading LUT with occurences");
-		DoubleLUT lut = DoubleLUT.readFromFile(path, true);
-		assertTrue("Occurences and table have not the same length",
-				lut.getTable().length == lut.getOccurences().length);
-		assertTrue("Occurences and table have not expected lut size",
-				lut.getTable().length == lutSize);
-		double[] table = lut.getTable();
-		for (int i = 0; i < lutSize; i++)
-			assertTrue("Wrong value read from file LUT " + table[i]
-					+ " expected 1.0", table[i] == 1.0);
+				2, 2 }, 7, meanValues, "", path, countOccurrences);
+		DoubleLUT lut;
+		double[] table;
+		if (countOccurrences) {
+			log.info("Reading LUT with occurences");
+			lut = DoubleLUT.readFromFile(path, true);
+			assertTrue("Occurences and table have not the same length",
+					lut.getTable().length == lut.getOccurrences().length);
+			assertTrue("Occurences and table have not expected lut size",
+					lut.getTable().length == lutSize);
+			table = lut.getTable();
+			for (int i = 0; i < lutSize; i++)
+				assertTrue("Wrong value read from file LUT " + table[i]
+						+ " expected 1.0", table[i] == 1.0);
+		}
 		log.info("Reading LUT without occurences");
 		lut = DoubleLUT.readFromFile(path, false);
-		assertTrue("Occurences should be null", lut.getOccurences() == null);
+		assertTrue("Occurences should be null", lut.getOccurrences() == null);
 		assertTrue("Table has not expected lut size",
 				lut.getTable().length == lutSize);
 		table = lut.getTable();
@@ -123,5 +134,4 @@ public class Double52CardsLUTBuilderTest {
 					+ " expected 1.0", table[i] == 1.0);
 		Files.delete(path);
 	}
-
 }
