@@ -272,6 +272,17 @@ public class MultiDoubleLUT {
 		occurrences[index]++;
 	}
 
+	/**
+	 * Mean all indexes values. Expects that for each index, for each
+	 * occurrence, all values has been added and the occurrences count has been
+	 * incremented properly.
+	 */
+	public void meanValues() {
+		for (int i = 0; i < nbIndexes; i++)
+			for (int j = 0; j < nbValuesPerIndex; j++)
+				table[i * nbValuesPerIndex + j] /= occurrences[i];
+	}
+
 	private final static Set<OpenOption> fileOptions = new HashSet<OpenOption>();
 	static {
 		fileOptions.add(StandardOpenOption.WRITE);
@@ -367,4 +378,5 @@ public class MultiDoubleLUT {
 			throw new IOException("Couldn't read all " + nbBytes + " bytes");
 		buffer.rewind();
 	}
+
 }

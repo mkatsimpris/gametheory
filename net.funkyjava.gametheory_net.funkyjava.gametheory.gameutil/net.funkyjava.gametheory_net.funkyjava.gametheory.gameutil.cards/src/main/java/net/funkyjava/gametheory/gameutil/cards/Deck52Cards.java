@@ -7,6 +7,7 @@ import org.apache.commons.math3.random.ISAACRandom;
 import org.apache.commons.math3.random.JDKRandomGenerator;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.util.CombinatoricsUtils;
 
 /**
  * <p>
@@ -211,4 +212,34 @@ public class Deck52Cards {
 		return res;
 	}
 
+	/**
+	 * Computes the number of all possible cards groups combinations.
+	 * 
+	 * @param groupsSizes
+	 *            the cards groups sizes
+	 * @return the number of combinations
+	 */
+	public static long getCardsGroupsCombinationsCount(int[] groupsSizes) {
+		return getCardsGroupsCombinationsCount(groupsSizes, 0);
+	}
+
+	/**
+	 * Computes the number of all possible cards groups combinations.
+	 * 
+	 * @param groupsSizes
+	 *            the cards groups sizes
+	 * @param nbDeadCards
+	 *            number of dead cards in the deck
+	 * @return the number of combinations
+	 */
+	public static long getCardsGroupsCombinationsCount(int[] groupsSizes,
+			int nbDeadCards) {
+		long tot = 1;
+		int deckSize = 52 - nbDeadCards;
+		for (int gs : groupsSizes) {
+			tot *= CombinatoricsUtils.binomialCoefficient(deckSize, gs);
+			deckSize -= gs;
+		}
+		return tot;
+	}
 }

@@ -22,36 +22,39 @@ import net.funkyjava.gametheory.gameutil.cards.indexing.CardsGroupsIndexer;
 /**
  * 
  * Build a double look-up table (LUT) for a 52 cards game via the method
- * {@link #buildLUT(CardsGroupsIndexer, CardsGroupsDoubleEvaluatorProvider, int[], int, boolean, boolean, String)}
+ * 
+ * {@link #buildAndWriteLUT(CardsGroupsIndexer, CardsGroupsMultiDoubleEvaluatorProvider, int[], int, boolean, String, Path, boolean)}
  * or
- * {@link #buildAndWriteLUT(CardsGroupsIndexer, CardsGroupsDoubleEvaluatorProvider, int[], int, boolean, String, Path, boolean)}
+ * {@link #buildLUT(CardsGroupsIndexer, CardsGroupsMultiDoubleEvaluatorProvider, int[], int, boolean, boolean, String)}
  * 
  * @author Pierre Mardon
  * 
  */
 @Slf4j
-public class Double52CardsLUTBuilder {
+public class MultiDouble52CardsLUTBuilder {
 	private final ExecutorService service;
 	private static final int nbJobs = 20;
+	private final int nbValues;
 	private final CardsGroupsIndexer indexer;
 	private final int indexSize;
-	private final CardsGroupsDoubleEvaluator[] evaluators;
+	private final CardsGroupsMultiDoubleEvaluator[] evaluators;
 	private final int nbThreads;
 	private final List<int[][]> toDo = new LinkedList<>();
 	private final List<int[][]> freeJobs = new LinkedList<>();
 	private final Cards52SpecTranslator translator;
 	private final int[] groupsSizes;
 	private final boolean meanValues, countOccurrences;
-	private final DoubleLUT lut;
+	private final MultiDoubleLUT lut;
 	private final boolean[] uniqueValSet;
 	private boolean stop = false;
 	private final long totalCount;
+
 	private long count = 0;
 	private long uniqueCount = 0;
 	private long start;
 
-	private Double52CardsLUTBuilder(@NonNull CardsGroupsIndexer indexer,
-			@NonNull CardsGroupsDoubleEvaluatorProvider<?> provider,
+	private MultiDouble52CardsLUTBuilder(@NonNull CardsGroupsIndexer indexer,
+			@NonNull CardsGroupsMultiDoubleEvaluatorProvider<?> provider,
 			int[] groupsSizes, int nbThreads, boolean countOccurrences,
 			boolean meanValues, String gameId) {
 		checkArgument(nbThreads > 0, "Cant run with nbThreads <= 2");
@@ -59,13 +62,14 @@ public class Double52CardsLUTBuilder {
 				"Cannot mean values without counting occurrencies");
 		this.indexer = indexer;
 		indexSize = indexer.getIndexSize();
-		this.evaluators = new CardsGroupsDoubleEvaluator[nbThreads - 1];
+		this.evaluators = new CardsGroupsMultiDoubleEvaluator[nbThreads - 1];
 		this.groupsSizes = groupsSizes;
 		this.nbThreads = nbThreads;
 		this.meanValues = meanValues;
 		this.countOccurrences = countOccurrences;
-		uniqueValSet = countOccurrences ? null : new boolean[indexSize];
 		totalCount = Deck52Cards.getCardsGroupsCombinationsCount(groupsSizes);
+		nbValues = provider.get().getNbValues();
+		uniqueValSet = countOccurrences ? null : new boolean[indexSize];
 		service = Executors.newFixedThreadPool(nbThreads + 1);
 		for (int i = 0; i < nbThreads - 1; i++) {
 			evaluators[i] = provider.get();
@@ -76,7 +80,7 @@ public class Double52CardsLUTBuilder {
 		}
 		translator = new Cards52SpecTranslator(indexer.getCardsSpec(),
 				evaluators[0].getCardsSpec());
-		lut = new DoubleLUT(indexSize, countOccurrences);
+		lut = new MultiDoubleLUT(indexSize, nbValues, countOccurrences);
 		for (int i = 0; i < nbJobs; i++) {
 			final int[][] cards = new int[groupsSizes.length][];
 			for (int j = 0; j < groupsSizes.length; j++)
@@ -85,7 +89,7 @@ public class Double52CardsLUTBuilder {
 		}
 	}
 
-	private DoubleLUT build() throws InterruptedException {
+	private MultiDoubleLUT build() throws InterruptedException {
 		start = System.currentTimeMillis();
 		service.execute(new Feeder());
 		for (int i = 0; i < nbThreads - 1; i++) {
@@ -157,8 +161,8 @@ public class Double52CardsLUTBuilder {
 		public void run() {
 			long elapsed;
 			int[][] cards = null;
+			double[] values = new double[evaluators[index].getNbValues()];
 			int handIndex;
-			double val = 0;
 			while (true) {
 				synchronized (toDo) {
 					try {
@@ -184,9 +188,8 @@ public class Double52CardsLUTBuilder {
 								+ handIndex + " for cards "
 								+ Arrays.deepToString(cards));
 					if (countOccurrences) {
-						lut.incrOccurrencesCountFor(handIndex);
-						if (meanValues
-								|| lut.getOccurencesCountFor(handIndex) == 1) {
+						lut.incrOccurences(handIndex);
+						if (meanValues || lut.getOccurrences(handIndex) == 1) {
 						} else {
 							freeJobs.add(cards);
 							toDo.notifyAll();
@@ -221,10 +224,13 @@ public class Double52CardsLUTBuilder {
 					}
 				}
 				translator.translate(cards);
-				val = evaluators[index].getValue(cards);
+				evaluators[index].getValue(cards, values, 0);
 				translator.reverse(cards);
 				synchronized (toDo) {
-					lut.addValueFor(handIndex, val);
+					if (meanValues)
+						lut.addValues(handIndex, values);
+					else
+						lut.setValues(handIndex, values);
 					freeJobs.add(cards);
 					toDo.notifyAll();
 				}
@@ -254,11 +260,11 @@ public class Double52CardsLUTBuilder {
 	 * @return the resulting LUT
 	 * @throws InterruptedException
 	 */
-	public static DoubleLUT buildLUT(@NonNull CardsGroupsIndexer indexer,
-			@NonNull CardsGroupsDoubleEvaluatorProvider<?> provider,
+	public static MultiDoubleLUT buildLUT(@NonNull CardsGroupsIndexer indexer,
+			@NonNull CardsGroupsMultiDoubleEvaluatorProvider<?> provider,
 			int[] groupsSizes, int nbThreads, boolean countOccurrences,
 			boolean meanValues, String gameId) throws InterruptedException {
-		return new Double52CardsLUTBuilder(indexer, provider, groupsSizes,
+		return new MultiDouble52CardsLUTBuilder(indexer, provider, groupsSizes,
 				nbThreads, countOccurrences, meanValues, gameId).build();
 	}
 
@@ -289,17 +295,17 @@ public class Double52CardsLUTBuilder {
 	 * @throws IOException
 	 *             when writing encounters an error
 	 */
-	public static DoubleLUT buildAndWriteLUT(
+	public static MultiDoubleLUT buildAndWriteLUT(
 			@NonNull CardsGroupsIndexer indexer,
-			@NonNull CardsGroupsDoubleEvaluatorProvider<?> provider,
+			@NonNull CardsGroupsMultiDoubleEvaluatorProvider<?> provider,
 			int[] groupsSizes, int nbThreads, boolean meanValues,
 			String gameId, Path filePath, boolean writeOccurences)
 			throws InterruptedException, IOException {
 		Files.createFile(filePath);
 		Files.delete(filePath);
-		final DoubleLUT res = new Double52CardsLUTBuilder(indexer, provider,
-				groupsSizes, nbThreads, writeOccurences, meanValues, gameId)
-				.build();
+		final MultiDoubleLUT res = new MultiDouble52CardsLUTBuilder(indexer,
+				provider, groupsSizes, nbThreads, writeOccurences, meanValues,
+				gameId).build();
 		res.writeToFile(filePath, writeOccurences);
 		return res;
 	}
