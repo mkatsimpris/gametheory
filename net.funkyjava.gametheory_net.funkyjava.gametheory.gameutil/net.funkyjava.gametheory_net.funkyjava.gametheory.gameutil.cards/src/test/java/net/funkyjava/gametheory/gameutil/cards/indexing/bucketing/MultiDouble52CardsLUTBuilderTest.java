@@ -96,6 +96,11 @@ public class MultiDouble52CardsLUTBuilderTest {
 				public boolean canHandleGroups(int[] groupsSizes) {
 					return true;
 				}
+
+				@Override
+				public String getValueName(int valueIndex) {
+					return "";
+				}
 			};
 		}
 	};

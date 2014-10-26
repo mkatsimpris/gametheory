@@ -55,4 +55,14 @@ public interface CardsGroupsMultiDoubleEvaluator {
 	 * @return compatibility boolean
 	 */
 	public boolean isCompatible(String gameId);
+
+	/**
+	 * Gets the value name for a given index between 0 and
+	 * {@link #getNbValues()} - 1
+	 * 
+	 * @param valueIndex
+	 *            index of the value
+	 * @return the name of the value
+	 */
+	public String getValueName(int valueIndex);
 }

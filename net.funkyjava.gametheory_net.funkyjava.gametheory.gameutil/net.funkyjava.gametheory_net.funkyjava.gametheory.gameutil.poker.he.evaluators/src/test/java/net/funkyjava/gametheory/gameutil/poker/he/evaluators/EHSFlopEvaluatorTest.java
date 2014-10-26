@@ -1,16 +1,11 @@
 package net.funkyjava.gametheory.gameutil.poker.he.evaluators;
 
 import static org.junit.Assert.assertTrue;
-
-import java.nio.file.Paths;
-
 import lombok.extern.slf4j.Slf4j;
 import net.funkyjava.gametheory.gameutil.cards.Cards52Strings;
 import net.funkyjava.gametheory.gameutil.cards.DefaultIntCardsSpecs;
 import net.funkyjava.gametheory.gameutil.cards.IntCardsSpec;
-import net.funkyjava.gametheory.gameutil.cards.indexing.bucketing.Double52CardsLUTBuilder;
 import net.funkyjava.gametheory.gameutil.poker.he.handeval.twoplustwo.TwoPlusTwoEvaluator;
-import net.funkyjava.gametheory.gameutil.poker.he.handeval.twoplustwo.TwoPlusTwoEvaluatorProvider;
 import net.funkyjava.gametheory.gameutil.poker.he.indexing.djhemlig.FlopIndexer;
 
 import org.junit.Test;
@@ -91,22 +86,4 @@ public class EHSFlopEvaluatorTest {
 		}
 	}
 
-	/**
-	 * TODO remove this
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void testCreateLut() throws Exception {
-		final FlopIndexer indexer = new FlopIndexer();
-		indexer.initialize();
-		final IntCardsSpec specs = DefaultIntCardsSpecs.getDefault();
-		log.info("Initializing 2+2 evaluator");
-		final TwoPlusTwoEvaluatorProvider evalProvider = new TwoPlusTwoEvaluatorProvider();
-		final EHSFlopEvaluatorProvider ehs = new EHSFlopEvaluatorProvider(
-				specs, evalProvider);
-		Double52CardsLUTBuilder.buildAndWriteLUT(indexer, ehs,
-				new int[] { 2, 3 }, 7, false, "HE_POKER_FLOP",
-				Paths.get("/home/pitt/EHS_FLOP_LUT.dat"), true);
-	}
 }
