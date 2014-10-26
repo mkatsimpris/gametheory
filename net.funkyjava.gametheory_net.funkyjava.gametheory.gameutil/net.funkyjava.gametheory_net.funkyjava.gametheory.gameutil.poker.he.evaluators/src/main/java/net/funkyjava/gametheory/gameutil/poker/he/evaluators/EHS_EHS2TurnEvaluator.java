@@ -12,7 +12,7 @@ import net.funkyjava.gametheory.gameutil.poker.he.handeval.Holdem7CardsEvaluator
  * @author Pierre Mardon
  * 
  */
-public class EHS_EHS2FlopEvaluator implements CardsGroupsMultiDoubleEvaluator {
+public class EHS_EHS2TurnEvaluator implements CardsGroupsMultiDoubleEvaluator {
 
 	private final IntCardsSpec cardsSpec;
 	private final Holdem7CardsEvaluator eval;
@@ -22,7 +22,7 @@ public class EHS_EHS2FlopEvaluator implements CardsGroupsMultiDoubleEvaluator {
 	private final int[] pRiver = new int[7];
 	private final int[] opRiver = new int[7];
 	private int pRiverEval, opRiverEval;
-	private int o1, o2, t, r, i, j;
+	private int o1, o2, r, i, j;
 	private double ehs, totEHS2, totEHS;
 	private long win, tie, total, bigTotal;
 
@@ -34,7 +34,7 @@ public class EHS_EHS2FlopEvaluator implements CardsGroupsMultiDoubleEvaluator {
 	 * @param eval
 	 *            an holdem evaluator to do the job
 	 */
-	public EHS_EHS2FlopEvaluator(@NonNull IntCardsSpec cardsSpec,
+	public EHS_EHS2TurnEvaluator(@NonNull IntCardsSpec cardsSpec,
 			@NonNull Holdem7CardsEvaluator eval) {
 		this.cardsSpec = cardsSpec;
 		this.eval = eval;
@@ -50,12 +50,12 @@ public class EHS_EHS2FlopEvaluator implements CardsGroupsMultiDoubleEvaluator {
 	@Override
 	public boolean canHandleGroups(int[] groupsSizes) {
 		return groupsSizes != null && groupsSizes.length == 2
-				&& groupsSizes[0] == 2 && groupsSizes[1] == 3;
+				&& groupsSizes[0] == 2 && groupsSizes[1] == 4;
 	}
 
 	@Override
 	public boolean isCompatible(String gameId) {
-		return "HE_POKER_FLOP".equals(gameId);
+		return "HE_POKER_TURN".equals(gameId);
 	}
 
 	@Override
@@ -68,45 +68,38 @@ public class EHS_EHS2FlopEvaluator implements CardsGroupsMultiDoubleEvaluator {
 			for (j = 0; j < cardsGroups[i].length; j++)
 				usedCards[cardsGroups[i][j] - destOffset] = true;
 		System.arraycopy(cardsGroups[0], 0, pRiver, 0, 2);
-		System.arraycopy(cardsGroups[1], 0, pRiver, 2, 3);
-		System.arraycopy(cardsGroups[1], 0, opRiver, 2, 3);
+		System.arraycopy(cardsGroups[1], 0, pRiver, 2, 4);
+		System.arraycopy(cardsGroups[1], 0, opRiver, 2, 4);
 
-		for (t = destOffset; t < destOffset + 52; t++) {
-			if (usedCards[t - destOffset])
+		for (r = destOffset; r < destOffset + 52; r++) {
+			if (usedCards[r - destOffset])
 				continue;
-			usedCards[t - destOffset] = true;
-			pRiver[5] = opRiver[5] = t;
-			for (r = t + 1; r < destOffset + 52; r++) {
-				if (usedCards[r - destOffset])
+			pRiver[6] = opRiver[6] = r;
+			usedCards[r - destOffset] = true;
+			win = tie = total = 0;
+			for (o1 = destOffset; o1 < destOffset + 52; o1++) {
+				if (usedCards[o1 - destOffset])
 					continue;
-				pRiver[6] = opRiver[6] = r;
-				usedCards[r - destOffset] = true;
-				win = tie = total = 0;
-				for (o1 = destOffset; o1 < destOffset + 52; o1++) {
-					if (usedCards[o1 - destOffset])
+				usedCards[o1 - destOffset] = true;
+				opRiver[0] = o1;
+				for (o2 = o1 + 1; o2 < destOffset + 52; o2++) {
+					if (usedCards[o2 - destOffset])
 						continue;
-					usedCards[o1 - destOffset] = true;
-					opRiver[0] = o1;
-					for (o2 = o1 + 1; o2 < destOffset + 52; o2++) {
-						if (usedCards[o2 - destOffset])
-							continue;
-						opRiver[1] = o2;
-						pRiverEval = eval.get7CardsEval(pRiver);
-						opRiverEval = eval.get7CardsEval(opRiver);
-						if (opRiverEval < pRiverEval)
-							win++;
-						else if (opRiverEval == pRiverEval)
-							tie++;
-						total++;
-					}
-					usedCards[o1 - destOffset] = false;
+					opRiver[1] = o2;
+					pRiverEval = eval.get7CardsEval(pRiver);
+					opRiverEval = eval.get7CardsEval(opRiver);
+					if (opRiverEval < pRiverEval)
+						win++;
+					else if (opRiverEval == pRiverEval)
+						tie++;
+					total++;
 				}
-				totEHS2 += (ehs = (win + tie / 2.0) / total) * ehs;
-				totEHS += ehs;
-				bigTotal++;
-				usedCards[r - destOffset] = false;
+				usedCards[o1 - destOffset] = false;
 			}
-			usedCards[t - destOffset] = false;
+			totEHS2 += (ehs = (win + tie / 2.0) / total) * ehs;
+			totEHS += ehs;
+			bigTotal++;
+			usedCards[r - destOffset] = false;
 		}
 		for (i = 0; i < cardsGroups.length; i++)
 			for (j = 0; j < cardsGroups[i].length; j++)

@@ -11,7 +11,7 @@ import net.funkyjava.gametheory.gameutil.poker.he.handeval.Holdem7CardsEvaluator
  * @author Pierre Mardon
  * 
  */
-public class EHS_EHS2FlopEvaluatorProvider implements
+public class EHS_EHS2TurnEvaluatorProvider implements
 		CardsGroupsMultiDoubleEvaluatorProvider {
 
 	private final IntCardsSpec specs;
@@ -25,15 +25,15 @@ public class EHS_EHS2FlopEvaluatorProvider implements
 	 * @param evalProvider
 	 *            an holdem evaluator provider
 	 */
-	public EHS_EHS2FlopEvaluatorProvider(IntCardsSpec specs,
+	public EHS_EHS2TurnEvaluatorProvider(IntCardsSpec specs,
 			Holdem7CardsEvaluatorProvider evalProvider) {
 		this.specs = specs;
 		this.evalProvider = evalProvider;
 	}
 
 	@Override
-	public EHS_EHS2FlopEvaluator get() {
-		return new EHS_EHS2FlopEvaluator(specs, evalProvider.getEvaluator());
+	public EHS_EHS2TurnEvaluator get() {
+		return new EHS_EHS2TurnEvaluator(specs, evalProvider.getEvaluator());
 	}
 
 }

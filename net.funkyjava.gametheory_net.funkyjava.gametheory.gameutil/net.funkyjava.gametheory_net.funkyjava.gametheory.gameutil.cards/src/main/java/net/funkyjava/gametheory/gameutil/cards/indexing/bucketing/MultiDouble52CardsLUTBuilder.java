@@ -60,6 +60,12 @@ public class MultiDouble52CardsLUTBuilder {
 		checkArgument(nbThreads > 0, "Cant run with nbThreads <= 2");
 		checkArgument(!meanValues || countOccurrences,
 				"Cannot mean values without counting occurrencies");
+		checkArgument(
+				indexer.canHandleGroups(groupsSizes),
+				"Provided indexer doesn't handle groups sizes : "
+						+ Arrays.toString(groupsSizes));
+		checkArgument(indexer.isCompatible(gameId),
+				"Provided indexer isn't compatible with game " + gameId);
 		this.indexer = indexer;
 		indexSize = indexer.getIndexSize();
 		this.evaluators = new CardsGroupsMultiDoubleEvaluator[nbThreads - 1];
@@ -189,14 +195,16 @@ public class MultiDouble52CardsLUTBuilder {
 								+ Arrays.deepToString(cards));
 					if (countOccurrences) {
 						count++;
-						if (count % 10000 == 0) {
+						if (count % 10000 == 0 && count != totalCount) {
 							// Elapsed time
 							elapsed = System.currentTimeMillis() - start;
 							log.info(
-									"Iter {} iter/s {} elapsed time ms {} progress {}%",
+									"Iter {} iter/s {} elapsed time ms {} progress {}% remaining time ms {}",
 									count, count * 1000 / (double) elapsed,
 									elapsed,
-									(count / (double) totalCount) * 100);
+									(count / (double) totalCount) * 100,
+									(elapsed / (double) count)
+											* (totalCount - count));
 						}
 						lut.incrOccurences(handIndex);
 						if (!meanValues && lut.getOccurrences(handIndex) != 1) {
@@ -212,14 +220,16 @@ public class MultiDouble52CardsLUTBuilder {
 						}
 						uniqueValSet[handIndex] = true;
 						uniqueCount++;
-						if (uniqueCount % 1000 == 0) {
+						if (uniqueCount % 1000 == 0 && uniqueCount != indexSize) {
 							// Elapsed time
 							elapsed = System.currentTimeMillis() - start;
 							log.info(
-									"Unique indexes walked {} per second {} elapsed time ms {} progress {}%",
+									"Unique indexes walked {} per second {} elapsed time ms {} progress {}% remaining time ms {}",
 									uniqueCount, uniqueCount * 1000
 											/ (double) elapsed, elapsed,
-									(uniqueCount / (double) indexSize) * 100);
+									(uniqueCount / (double) indexSize) * 100,
+									(elapsed / (double) uniqueCount)
+											* (indexSize - uniqueCount));
 						}
 					}
 				}
