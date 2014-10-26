@@ -109,7 +109,7 @@ public class DoubleLUT {
 	 *            the index
 	 * @return the occurrences count for this index
 	 */
-	public int getOccurencesCountFor(int index) {
+	public int getOccurrencesCountFor(int index) {
 		return occurrences[index];
 	}
 
@@ -133,7 +133,7 @@ public class DoubleLUT {
 	 * @param count
 	 *            the count to set
 	 */
-	public void getOccurrencesCountFor(int index, int count) {
+	public void setOccurrencesCountFor(int index, int count) {
 		occurrences[index] = count;
 	}
 

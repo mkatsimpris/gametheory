@@ -94,23 +94,4 @@ public class EHS_EHS2FlopEvaluatorTest {
 		}
 	}
 
-	// /**
-	// * TODO remove this
-	// *
-	// * @throws Exception
-	// */
-	// @Test
-	// public void testCreateLut() throws Exception {
-	// final FlopIndexer indexer = new FlopIndexer();
-	// indexer.initialize();
-	// final IntCardsSpec specs = DefaultIntCardsSpecs.getDefault();
-	// log.info("Initializing 2+2 evaluator");
-	// final TwoPlusTwoEvaluatorProvider evalProvider = new
-	// TwoPlusTwoEvaluatorProvider();
-	// final EHSFlopEvaluatorProvider ehs = new EHSFlopEvaluatorProvider(
-	// specs, evalProvider);
-	// Double52CardsLUTBuilder.buildAndWriteLUT(indexer, ehs,
-	// new int[] { 2, 3 }, 7, false, "HE_POKER_FLOP",
-	// Paths.get("/home/pitt/EHS2_FLOP_LUT.dat"), true);
-	// }
 }

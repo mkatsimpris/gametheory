@@ -184,10 +184,19 @@ public class Double52CardsLUTBuilder {
 								+ handIndex + " for cards "
 								+ Arrays.deepToString(cards));
 					if (countOccurrences) {
+						count++;
+						if (count % 10000 == 0) {
+							// Elapsed time
+							elapsed = System.currentTimeMillis() - start;
+							log.info(
+									"Iter {} iter/s {} elapsed time ms {} progress {}%",
+									count, count * 1000 / (double) elapsed,
+									elapsed,
+									(count / (double) totalCount) * 100);
+						}
 						lut.incrOccurrencesCountFor(handIndex);
-						if (meanValues
-								|| lut.getOccurencesCountFor(handIndex) == 1) {
-						} else {
+						if (!meanValues
+								&& lut.getOccurrencesCountFor(handIndex) != 1) {
 							freeJobs.add(cards);
 							toDo.notifyAll();
 							continue;
@@ -200,24 +209,15 @@ public class Double52CardsLUTBuilder {
 						}
 						uniqueValSet[handIndex] = true;
 						uniqueCount++;
-					}
-					count++;
-					if (countOccurrences && count % 10000 == 0) {
-						// Elapsed time
-						elapsed = System.currentTimeMillis() - start;
-						log.info(
-								"Iter {} iter/s {} elapsed time ms {} progress {}%",
-								count, count * 1000 / (double) elapsed,
-								elapsed, (count / (double) totalCount) * 100);
-					}
-					if (!countOccurrences && uniqueCount % 1000 == 0) {
-						// Elapsed time
-						elapsed = System.currentTimeMillis() - start;
-						log.info(
-								"Unique indexes walked {} per second {} elapsed time ms {} progress {}%",
-								uniqueCount, uniqueCount * 1000
-										/ (double) elapsed, elapsed,
-								(uniqueCount / (double) indexSize) * 100);
+						if (uniqueCount % 1000 == 0) {
+							// Elapsed time
+							elapsed = System.currentTimeMillis() - start;
+							log.info(
+									"Unique indexes walked {} per second {} elapsed time ms {} progress {}%",
+									uniqueCount, uniqueCount * 1000
+											/ (double) elapsed, elapsed,
+									(uniqueCount / (double) indexSize) * 100);
+						}
 					}
 				}
 				translator.translate(cards);
