@@ -222,7 +222,7 @@ public class MultiDoubleLUT {
 	 */
 	public void addValues(int index, int firstValueIndex, double[] values) {
 		for (int i = 0; i < values.length; i++)
-			table[index * nbValuesPerIndex + firstValueIndex + i] = values[i];
+			table[index * nbValuesPerIndex + firstValueIndex + i] += values[i];
 	}
 
 	/**
@@ -236,7 +236,7 @@ public class MultiDoubleLUT {
 	 */
 	public void addValues(int index, double[] values) {
 		for (int i = 0; i < values.length; i++)
-			table[index * nbValuesPerIndex + i] = values[i];
+			table[index * nbValuesPerIndex + i] += values[i];
 	}
 
 	/**
@@ -312,14 +312,16 @@ public class MultiDoubleLUT {
 		writeBuffer(chan, buffer, 8);
 		buffer.putInt(writeOccurences ? 1 : 0);
 		writeBuffer(chan, buffer, 4);
+		buffer.rewind().limit(8);
 		for (double val : table) {
 			buffer.putDouble(val);
 			writeBuffer(chan, buffer, 8);
 		}
-		for (int occ : occurrences) {
-			buffer.putInt(occ);
-			writeBuffer(chan, buffer, 4);
-		}
+		if (writeOccurences)
+			for (int occ : occurrences) {
+				buffer.putInt(occ);
+				writeBuffer(chan, buffer, 4);
+			}
 		chan.close();
 	}
 

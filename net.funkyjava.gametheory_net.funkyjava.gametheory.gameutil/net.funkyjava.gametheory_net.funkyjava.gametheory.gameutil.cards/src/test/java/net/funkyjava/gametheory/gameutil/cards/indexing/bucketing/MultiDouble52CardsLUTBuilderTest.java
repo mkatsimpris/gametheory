@@ -16,13 +16,13 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 /**
- * Test class for {@link Double52CardsLUTBuilder}
+ * Test class for {@link MultiDouble52CardsLUTBuilder}
  * 
  * @author Pierre Mardon
  * 
  */
 @Slf4j
-public class Double52CardsLUTBuilderTest {
+public class MultiDouble52CardsLUTBuilderTest {
 
 	/**
 	 * The temporary folder
@@ -62,11 +62,13 @@ public class Double52CardsLUTBuilderTest {
 		}
 	};
 
-	private final CardsGroupsDoubleEvaluatorProvider provider = new CardsGroupsDoubleEvaluatorProvider() {
+	private static final int nbValues = 3;
+
+	private final CardsGroupsMultiDoubleEvaluatorProvider provider = new CardsGroupsMultiDoubleEvaluatorProvider() {
 
 		@Override
-		public CardsGroupsDoubleEvaluator get() {
-			return new CardsGroupsDoubleEvaluator() {
+		public CardsGroupsMultiDoubleEvaluator get() {
+			return new CardsGroupsMultiDoubleEvaluator() {
 
 				@Override
 				public boolean isCompatible(String gameId) {
@@ -74,8 +76,15 @@ public class Double52CardsLUTBuilderTest {
 				}
 
 				@Override
-				public double getValue(int[][] cardsGroups) {
-					return 1;
+				public void getValues(int[][] cardsGroups, double[] dest,
+						int offset) {
+					for (int i = 0; i < nbValues; i++)
+						dest[offset + i] = 1.0;
+				}
+
+				@Override
+				public int getNbValues() {
+					return nbValues;
 				}
 
 				@Override
@@ -107,29 +116,58 @@ public class Double52CardsLUTBuilderTest {
 
 	private void testBuildAndWriteLUT(Path path, boolean countOccurrences,
 			boolean meanValues) throws InterruptedException, IOException {
-		Double52CardsLUTBuilder.buildAndWriteLUT(indexer, provider, new int[] {
-				2, 2 }, 7, meanValues, "", path, countOccurrences);
-		DoubleLUT lut;
+		MultiDoubleLUT lut = MultiDouble52CardsLUTBuilder.buildAndWriteLUT(
+				indexer, provider, new int[] { 2, 2 }, 7, meanValues, "", path,
+				countOccurrences);
 		double[] table;
 		if (countOccurrences) {
-			log.info("Reading LUT with occurences");
-			lut = DoubleLUT.readFromFile(path, true);
-			assertTrue("Occurences and table have not the same length",
-					lut.getTable().length == lut.getOccurrences().length);
+			log.info("Checking produced LUT with occurences");
+			assertTrue(
+					"Occurences and table have not the same length "
+							+ lut.getTable().length + " "
+							+ lut.getOccurrences().length,
+					lut.getTable().length == lut.getOccurrences().length
+							* nbValues);
 			assertTrue("Occurences and table have not expected lut size",
-					lut.getTable().length == lutSize);
+					lut.getTable().length == lutSize * nbValues);
 			table = lut.getTable();
-			for (int i = 0; i < lutSize; i++)
+			for (int i = 0; i < lutSize * nbValues; i++)
+				assertTrue("Wrong value read from file LUT " + table[i]
+						+ " expected 1.0", table[i] == 1.0);
+		} else {
+			log.info("Checking produced LUT without occurences");
+			assertTrue("Occurences should be null",
+					lut.getOccurrences() == null);
+			assertTrue("Table has not expected lut size",
+					lut.getTable().length == lutSize * nbValues);
+			table = lut.getTable();
+			for (int i = 0; i < lutSize * nbValues; i++)
+				assertTrue("Wrong value read from file LUT " + table[i]
+						+ " expected 1.0", table[i] == 1.0);
+		}
+		if (countOccurrences) {
+			log.info("Reading LUT with occurences");
+			lut = MultiDoubleLUT.readFromFile(path, true);
+			assertTrue(
+					"Occurences and table have not the same length "
+							+ lut.getTable().length + " "
+							+ lut.getOccurrences().length,
+					lut.getTable().length == lut.getOccurrences().length
+							* nbValues);
+			assertTrue("Occurences and table have not expected lut size",
+					lut.getTable().length == lutSize * nbValues);
+			table = lut.getTable();
+			for (int i = 0; i < lutSize * nbValues; i++)
 				assertTrue("Wrong value read from file LUT " + table[i]
 						+ " expected 1.0", table[i] == 1.0);
 		}
 		log.info("Reading LUT without occurences");
-		lut = DoubleLUT.readFromFile(path, false);
+		lut = MultiDoubleLUT.readFromFile(path, false);
 		assertTrue("Occurences should be null", lut.getOccurrences() == null);
 		assertTrue("Table has not expected lut size",
-				lut.getTable().length == lutSize);
+				lut.getTable().length == lutSize * nbValues);
 		table = lut.getTable();
-		for (int i = 0; i < lutSize; i++)
+		for (int i = 0; i < lutSize * nbValues; i++)
 			assertTrue("Wrong value read from file LUT " + table[i]
 					+ " expected 1.0", table[i] == 1.0);
 		Files.delete(path);

@@ -11,7 +11,7 @@ import net.funkyjava.gametheory.gameutil.poker.he.handeval.Holdem5CardsEvaluator
  * 
  */
 public class HSFlopEvaluatorProvider implements
-		CardsGroupsDoubleEvaluatorProvider<HSFlopEvaluator> {
+		CardsGroupsDoubleEvaluatorProvider {
 
 	private final IntCardsSpec specs;
 	private final Holdem5CardsEvaluatorProvider evalProvider;

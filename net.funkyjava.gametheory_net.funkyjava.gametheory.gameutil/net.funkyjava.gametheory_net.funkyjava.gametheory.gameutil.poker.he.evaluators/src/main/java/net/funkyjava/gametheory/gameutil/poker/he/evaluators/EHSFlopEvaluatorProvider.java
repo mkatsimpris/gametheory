@@ -11,7 +11,7 @@ import net.funkyjava.gametheory.gameutil.poker.he.handeval.HoldemFullEvaluatorPr
  * 
  */
 public class EHSFlopEvaluatorProvider implements
-		CardsGroupsDoubleEvaluatorProvider<EHSFlopEvaluator> {
+		CardsGroupsDoubleEvaluatorProvider {
 
 	private final IntCardsSpec specs;
 	private final HoldemFullEvaluatorProvider evalProvider;

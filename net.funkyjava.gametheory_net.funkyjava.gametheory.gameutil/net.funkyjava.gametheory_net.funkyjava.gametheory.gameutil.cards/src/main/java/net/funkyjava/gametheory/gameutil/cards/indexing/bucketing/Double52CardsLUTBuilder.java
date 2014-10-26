@@ -51,7 +51,7 @@ public class Double52CardsLUTBuilder {
 	private long start;
 
 	private Double52CardsLUTBuilder(@NonNull CardsGroupsIndexer indexer,
-			@NonNull CardsGroupsDoubleEvaluatorProvider<?> provider,
+			@NonNull CardsGroupsDoubleEvaluatorProvider provider,
 			int[] groupsSizes, int nbThreads, boolean countOccurrences,
 			boolean meanValues, String gameId) {
 		checkArgument(nbThreads > 0, "Cant run with nbThreads <= 2");
@@ -255,7 +255,7 @@ public class Double52CardsLUTBuilder {
 	 * @throws InterruptedException
 	 */
 	public static DoubleLUT buildLUT(@NonNull CardsGroupsIndexer indexer,
-			@NonNull CardsGroupsDoubleEvaluatorProvider<?> provider,
+			@NonNull CardsGroupsDoubleEvaluatorProvider provider,
 			int[] groupsSizes, int nbThreads, boolean countOccurrences,
 			boolean meanValues, String gameId) throws InterruptedException {
 		return new Double52CardsLUTBuilder(indexer, provider, groupsSizes,
@@ -291,7 +291,7 @@ public class Double52CardsLUTBuilder {
 	 */
 	public static DoubleLUT buildAndWriteLUT(
 			@NonNull CardsGroupsIndexer indexer,
-			@NonNull CardsGroupsDoubleEvaluatorProvider<?> provider,
+			@NonNull CardsGroupsDoubleEvaluatorProvider provider,
 			int[] groupsSizes, int nbThreads, boolean meanValues,
 			String gameId, Path filePath, boolean writeOccurences)
 			throws InterruptedException, IOException {

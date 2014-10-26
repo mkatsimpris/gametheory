@@ -21,7 +21,7 @@ public interface CardsGroupsMultiDoubleEvaluator {
 	 * @param offset
 	 *            index offset for the destination array
 	 */
-	public void getValue(int[][] cardsGroups, double[] dest, int offset);
+	public void getValues(int[][] cardsGroups, double[] dest, int offset);
 
 	/**
 	 * Get the number of values this evaluator calculates

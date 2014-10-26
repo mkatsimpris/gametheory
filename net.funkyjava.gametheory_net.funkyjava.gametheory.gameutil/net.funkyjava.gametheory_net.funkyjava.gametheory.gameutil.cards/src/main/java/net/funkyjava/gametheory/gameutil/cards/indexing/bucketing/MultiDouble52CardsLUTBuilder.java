@@ -54,7 +54,7 @@ public class MultiDouble52CardsLUTBuilder {
 	private long start;
 
 	private MultiDouble52CardsLUTBuilder(@NonNull CardsGroupsIndexer indexer,
-			@NonNull CardsGroupsMultiDoubleEvaluatorProvider<?> provider,
+			@NonNull CardsGroupsMultiDoubleEvaluatorProvider provider,
 			int[] groupsSizes, int nbThreads, boolean countOccurrences,
 			boolean meanValues, String gameId) {
 		checkArgument(nbThreads > 0, "Cant run with nbThreads <= 2");
@@ -224,7 +224,7 @@ public class MultiDouble52CardsLUTBuilder {
 					}
 				}
 				translator.translate(cards);
-				evaluators[index].getValue(cards, values, 0);
+				evaluators[index].getValues(cards, values, 0);
 				translator.reverse(cards);
 				synchronized (toDo) {
 					if (meanValues)
@@ -261,7 +261,7 @@ public class MultiDouble52CardsLUTBuilder {
 	 * @throws InterruptedException
 	 */
 	public static MultiDoubleLUT buildLUT(@NonNull CardsGroupsIndexer indexer,
-			@NonNull CardsGroupsMultiDoubleEvaluatorProvider<?> provider,
+			@NonNull CardsGroupsMultiDoubleEvaluatorProvider provider,
 			int[] groupsSizes, int nbThreads, boolean countOccurrences,
 			boolean meanValues, String gameId) throws InterruptedException {
 		return new MultiDouble52CardsLUTBuilder(indexer, provider, groupsSizes,
@@ -297,7 +297,7 @@ public class MultiDouble52CardsLUTBuilder {
 	 */
 	public static MultiDoubleLUT buildAndWriteLUT(
 			@NonNull CardsGroupsIndexer indexer,
-			@NonNull CardsGroupsMultiDoubleEvaluatorProvider<?> provider,
+			@NonNull CardsGroupsMultiDoubleEvaluatorProvider provider,
 			int[] groupsSizes, int nbThreads, boolean meanValues,
 			String gameId, Path filePath, boolean writeOccurences)
 			throws InterruptedException, IOException {

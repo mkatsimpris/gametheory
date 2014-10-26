@@ -7,10 +7,8 @@ package net.funkyjava.gametheory.gameutil.cards.indexing.bucketing;
  * 
  * @author Pierre Mardon
  * 
- * @param <E>
- *            the evaluator class
  */
-public interface CardsGroupsDoubleEvaluatorProvider<E extends CardsGroupsDoubleEvaluator> {
+public interface CardsGroupsDoubleEvaluatorProvider {
 
 	/**
 	 * Get an evaluator. It can always be the same instance as long as it's
@@ -18,6 +16,6 @@ public interface CardsGroupsDoubleEvaluatorProvider<E extends CardsGroupsDoubleE
 	 * 
 	 * @return the evaluator
 	 */
-	E get();
+	CardsGroupsDoubleEvaluator get();
 
 }
