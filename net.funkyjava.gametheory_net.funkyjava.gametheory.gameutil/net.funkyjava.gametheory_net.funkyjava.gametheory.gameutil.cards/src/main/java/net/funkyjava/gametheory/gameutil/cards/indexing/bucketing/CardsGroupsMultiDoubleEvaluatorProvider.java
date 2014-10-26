@@ -7,8 +7,6 @@ package net.funkyjava.gametheory.gameutil.cards.indexing.bucketing;
  * 
  * @author Pierre Mardon
  * 
- * @param <E>
- *            the evaluator class
  */
 public interface CardsGroupsMultiDoubleEvaluatorProvider {
 
