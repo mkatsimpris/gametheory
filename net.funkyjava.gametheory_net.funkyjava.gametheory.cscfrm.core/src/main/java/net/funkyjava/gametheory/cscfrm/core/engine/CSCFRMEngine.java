@@ -6,7 +6,7 @@ import net.funkyjava.gametheory.cscfrm.model.game.CSCFRMBaseGame;
 import net.funkyjava.gametheory.cscfrm.model.game.nodes.Node;
 
 /**
- * Core class of this library.
+ * Chance-Sampling Counter Factual Regret Minimization algorithm implementation
  * 
  * @author Pierre Mardon
  */
@@ -249,7 +249,7 @@ public final class CSCFRMEngine {
 								* (pNodesUtil[depth][a][player] - itUtil[player]);
 					if (updateVisits) {
 						node.visits++;
-						node.realWeightSum += weight * itReal[player];
+						node.realWeightSum += weight;
 					}
 					if (lockPlayersNodes)
 						node.unlock();
