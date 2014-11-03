@@ -1,7 +1,6 @@
 package net.funkyjava.gametheory.gameutil.poker.he.evaluators;
 
 import net.funkyjava.gametheory.gameutil.cards.IntCardsSpec;
-import net.funkyjava.gametheory.gameutil.cards.indexing.bucketing.CardsGroupsDoubleEvaluator;
 import net.funkyjava.gametheory.gameutil.cards.indexing.bucketing.CardsGroupsDoubleEvaluatorProvider;
 import net.funkyjava.gametheory.gameutil.poker.he.handeval.Holdem7CardsEvaluatorProvider;
 
@@ -32,7 +31,7 @@ public class HSRiverEvaluatorProvider implements
 	}
 
 	@Override
-	public CardsGroupsDoubleEvaluator get() {
+	public HSRiverEvaluator get() {
 		return new HSRiverEvaluator(specs, evalProvider.getEvaluator());
 	}
 
