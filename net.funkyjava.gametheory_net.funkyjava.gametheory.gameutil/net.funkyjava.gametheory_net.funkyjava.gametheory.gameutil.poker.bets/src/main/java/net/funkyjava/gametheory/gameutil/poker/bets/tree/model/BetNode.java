@@ -1,11 +1,11 @@
 package net.funkyjava.gametheory.gameutil.poker.bets.tree.model;
 
 import lombok.Data;
-import net.funkyjava.gametheory.gameutil.poker.bets.tree.HandBetTreeBuilder;
+import net.funkyjava.gametheory.gameutil.poker.bets.tree.NLHandBetTreeBuilder;
 
 /**
  * 
- * Abstraction of a bet node to build a bet tree with {@link HandBetTreeBuilder}
+ * Abstraction of a bet node to build a bet tree with {@link NLHandBetTreeBuilder}
  * .
  * 
  * @author Pierre Mardon

@@ -577,16 +577,25 @@ public class NLHandRounds implements Cloneable {
 	}
 
 	/**
-	 * Build and get the list of pots for finished rounds.
+	 * Build and get the list of pots for finished rounds. Only players that are
+	 * always in the hand (didn't fold) are added to the list of players for
+	 * each pot.
 	 * 
 	 * @return the list of pots
 	 */
 	public List<Pot<Integer>> getCurrentPots() {
+		boolean[] inHand;
+		if (hasAnte && round == 0) {
+			inHand = anteRound.getData().getInHand();
+		} else if (hasBlinds && round < roundOffset) {
+			inHand = blindsRound.getData().getInHand();
+		} else
+			inHand = betRounds[round - roundOffset].getData().getInHand();
 		List<Pot<Integer>> pots = new LinkedList<>();
 		PlayersData data;
 		if (hasAnte && round > 0) {
 			data = anteRound.getData();
-			pots.addAll(Pot.getPots(data.getBets(), data.getInHand()));
+			pots.addAll(Pot.getPots(data.getBets(), inHand));
 		}
 		for (int i = 0; i <= round - roundOffset; i++) {
 			switch (betRounds[i].getState()) {
@@ -598,10 +607,10 @@ public class NLHandRounds implements Cloneable {
 			case SHOWDOWN:
 				data = betRounds[i].getData();
 				if (pots.isEmpty())
-					pots.addAll(Pot.getPots(data.getBets(), data.getInHand()));
+					pots.addAll(Pot.getPots(data.getBets(), inHand));
 				else
 					pots.addAll(Pot.getPots(pots.get(pots.size() - 1),
-							data.getBets(), data.getInHand()));
+							data.getBets(), inHand));
 				break;
 			case WAITING_MOVE:
 				// Don't add last round pots as it's not finished

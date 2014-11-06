@@ -17,12 +17,28 @@ import lombok.ToString;
 @ToString
 public class Move<PlayerId> {
 
+	/**
+	 * The move's player id
+	 */
 	@Getter
 	private PlayerId playerId;
+
+	/**
+	 * The move's type
+	 */
 	@Getter
 	private MoveType type;
+
+	/**
+	 * The move's value
+	 */
 	@Getter
 	private int value;
+
+	/**
+	 * The previous bet of the player in this round. Meaningful only for call
+	 * and raise
+	 */
 	@Getter
 	private int oldBet;
 

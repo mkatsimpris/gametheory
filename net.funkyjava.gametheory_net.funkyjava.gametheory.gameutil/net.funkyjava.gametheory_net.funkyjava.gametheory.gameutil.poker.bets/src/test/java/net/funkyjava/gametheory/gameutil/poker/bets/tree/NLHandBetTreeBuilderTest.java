@@ -10,13 +10,13 @@ import net.funkyjava.gametheory.gameutil.poker.bets.rounds.data.NoBetPlayersData
 import org.junit.Test;
 
 /**
- * Test class for {@link HandBetTreeBuilder} TODO complete test set
+ * Test class for {@link NLHandBetTreeBuilder} TODO complete test set
  * 
  * @author Pierre Mardon
  * 
  */
 @Slf4j
-public class HandBetTreeBuilderTest {
+public class NLHandBetTreeBuilderTest {
 
 	/**
 	 * Simply test the bet tree generation for an arbitrary situation
@@ -39,7 +39,7 @@ public class HandBetTreeBuilderTest {
 		NLHandRounds hand = new NLHandRounds(new BlindsAnteParameters(
 				playersData, builder.build()), 4, 1, false);
 		SampleBetRangeSlicer slicer = new SampleBetRangeSlicer(2, 6);
-		BettingTree bTree = HandBetTreeBuilder.getBetTree(hand, slicer);
+		BettingTree bTree = NLHandBetTreeBuilder.getBetTree(hand, slicer);
 		RoundBetTree[] trees = bTree.getRoundBetTrees();
 		int nbNodes = 0;
 		int nbEdges = 0;

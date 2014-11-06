@@ -29,7 +29,7 @@ import net.funkyjava.gametheory.gameutil.poker.bets.tree.model.PotsNodes;
  * 
  */
 @Slf4j
-public class HandBetTreeBuilder {
+public class NLHandBetTreeBuilder {
 	private final RoundBetTreeBuilder[] rounds;
 	private final BetRangeSlicer slicer;
 	private final NLHandRounds baseHand;
@@ -38,7 +38,7 @@ public class HandBetTreeBuilder {
 
 	private List<Integer> bets = new LinkedList<>();
 
-	private HandBetTreeBuilder(NLHandRounds hand, BetRangeSlicer slicer) {
+	private NLHandBetTreeBuilder(NLHandRounds hand, BetRangeSlicer slicer) {
 		this.slicer = slicer;
 		rounds = new RoundBetTreeBuilder[hand.getNbBetRounds()];
 		for (int i = 0; i < rounds.length; i++)
@@ -94,21 +94,15 @@ public class HandBetTreeBuilder {
 		for (int i = 0; i < bets.length; i++) {
 			final NLHandRounds newHand = hand.clone();
 			if (bets[i] == BetRangeSlicer.fold) {
-				if (nbNodesCreated == 846803)
-					log.info("Fold");
 				if (!newHand.doMove(Move.getFold(player)))
 					throw new IllegalStateException("Can't do this move");
 				this.bets.add(BetRangeSlicer.fold);
 				node.getNextNodes()[i] = createNodeRec(newHand, raiseIndex,
 						moveIndex + 1);
 				this.bets.remove(this.bets.size() - 1);
-				if (nbNodesCreated == 846803)
-					log.info("End Fold");
 				continue;
 			}
 			if (bets[i] == callValue) {
-				if (nbNodesCreated == 846803)
-					log.info("Call");
 				this.bets.add(callValue);
 				newHand.doMove(Move.getCall(player, callValue,
 						playersData.getBets()[player]));
@@ -118,8 +112,6 @@ public class HandBetTreeBuilder {
 				continue;
 			}
 			if (raiseIndex == 0) {
-				if (nbNodesCreated == 846803)
-					log.info("Bet");
 				this.bets.add(bets[i]);
 				if (!newHand.doMove(Move.getBet(choice.getPlayer(), bets[i])))
 					throw new IllegalStateException("Can't do this move");
@@ -129,8 +121,6 @@ public class HandBetTreeBuilder {
 				this.bets.remove(this.bets.size() - 1);
 				continue;
 			}
-			if (nbNodesCreated == 846803)
-				log.info("Raise");
 			this.bets.add(bets[i]);
 			if (!newHand.doMove(Move.getRaise(choice.getPlayer(), bets[i],
 					playersData.getBets()[player])))
@@ -139,13 +129,10 @@ public class HandBetTreeBuilder {
 					moveIndex + 1);
 			this.bets.remove(this.bets.size() - 1);
 		}
-		if (nbNodesCreated == 846803)
-			log.info("End Create bet node");
 		return res;
 	}
 
 	private int createShowDownNode(NLHandRounds hand) {
-		// System.err.println("createShowDownNode");
 		return term.findOrCreateShowDownNode(new PotsNodes(hand
 				.getCurrentPots()));
 	}
@@ -171,7 +158,7 @@ public class HandBetTreeBuilder {
 		checkArgument(hand.getRoundState() == RoundState.WAITING_MOVE,
 				"The hand doesn't seem to expect a move");
 		doAnteAndBlinds(hand);
-		return new HandBetTreeBuilder(hand, slicer).getBettingTree();
+		return new NLHandBetTreeBuilder(hand, slicer).getBettingTree();
 	}
 
 	/**

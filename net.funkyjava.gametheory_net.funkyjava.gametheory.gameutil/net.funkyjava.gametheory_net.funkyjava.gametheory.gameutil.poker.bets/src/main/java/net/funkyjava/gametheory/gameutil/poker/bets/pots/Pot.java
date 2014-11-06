@@ -23,8 +23,15 @@ import lombok.Getter;
  */
 public class Pot<PlayerId> {
 
+	/**
+	 * The pot's value
+	 */
 	@Getter
 	private int value;
+
+	/**
+	 * Players that contributed to the pot
+	 */
 	@Getter
 	private final List<PlayerId> players;
 

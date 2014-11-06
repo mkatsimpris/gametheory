@@ -13,7 +13,7 @@ import lombok.AllArgsConstructor;
 public class RoundBetTree {
 
 	/**
-	 * Standard offset to differentiate nodes indexes as explained int
+	 * Standard offset to differentiate nodes indexes as explained in
 	 * {@link #betNodes} doc
 	 */
 	public static final int offset = Integer.MAX_VALUE / 2;
