@@ -3,8 +3,8 @@ package net.funkyjava.gametheory.gameutil.poker.bets.tree;
 import lombok.AllArgsConstructor;
 
 /**
- * Compact representation of a round bet tree. Look at {@link #offset} doc to
- * understand the expected structure
+ * Compact representation of a round bet tree. Look at {@link #offset} and
+ * {@link #betNodes} doc to understand the expected structure
  * 
  * @author Pierre Mardon
  * 

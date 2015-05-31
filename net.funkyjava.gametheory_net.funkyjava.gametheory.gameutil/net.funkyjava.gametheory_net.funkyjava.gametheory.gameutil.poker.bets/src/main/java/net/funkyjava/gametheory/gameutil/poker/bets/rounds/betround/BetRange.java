@@ -5,10 +5,10 @@ package net.funkyjava.gametheory.gameutil.poker.bets.rounds.betround;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import net.funkyjava.gametheory.gameutil.poker.bets.tree.BetRangeSlicer;
+import net.funkyjava.gametheory.gameutil.poker.bets.tree.NLBetRangeSlicer;
 
 /**
- * Abstraction of a bet range to be sliced by a {@link BetRangeSlicer}
+ * Abstraction of a bet range to be sliced by a {@link NLBetRangeSlicer}
  * 
  * @author Pierre Mardon
  * 

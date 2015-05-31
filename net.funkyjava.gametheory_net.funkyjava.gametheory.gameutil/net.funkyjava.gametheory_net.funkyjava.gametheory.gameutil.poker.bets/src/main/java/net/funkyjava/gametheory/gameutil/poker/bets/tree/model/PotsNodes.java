@@ -20,7 +20,7 @@ public class PotsNodes {
 	 * The pots list for this node
 	 */
 	@Getter
-	public final List<Pot<Integer>> pots;
+	private final List<Pot<Integer>> pots;
 
 	@Override
 	public boolean equals(Object o) {

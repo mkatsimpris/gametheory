@@ -23,7 +23,7 @@ import net.funkyjava.gametheory.gameutil.poker.bets.tree.model.PotsNodes;
 
 /**
  * Class to build a hand reduced bet tree via it's method
- * {@link #getBetTree(NLHandRounds, BetRangeSlicer)}
+ * {@link #getBetTree(NLHandRounds, NLBetRangeSlicer)}
  * 
  * @author Pierre Mardon
  * 
@@ -31,14 +31,14 @@ import net.funkyjava.gametheory.gameutil.poker.bets.tree.model.PotsNodes;
 @Slf4j
 public class NLHandBetTreeBuilder {
 	private final RoundBetTreeBuilder[] rounds;
-	private final BetRangeSlicer slicer;
+	private final NLBetRangeSlicer slicer;
 	private final NLHandRounds baseHand;
 	private int nbNodesCreated = 0;
 	private final TerminalNodesBuilder term = new TerminalNodesBuilder();
 
 	private List<Integer> bets = new LinkedList<>();
 
-	private NLHandBetTreeBuilder(NLHandRounds hand, BetRangeSlicer slicer) {
+	private NLHandBetTreeBuilder(NLHandRounds hand, NLBetRangeSlicer slicer) {
 		this.slicer = slicer;
 		rounds = new RoundBetTreeBuilder[hand.getNbBetRounds()];
 		for (int i = 0; i < rounds.length; i++)
@@ -47,7 +47,7 @@ public class NLHandBetTreeBuilder {
 	};
 
 	private BettingTree getBettingTree() {
-		createNodeRec(baseHand, 1, 0);
+		createNodeRec(baseHand, 0);
 		log.info("End generating bet tree, {} nodes created ", nbNodesCreated);
 		RoundBetTree[] res = new RoundBetTree[rounds.length];
 		for (int i = 0; i < rounds.length; i++)
@@ -55,7 +55,7 @@ public class NLHandBetTreeBuilder {
 		return new BettingTree(res, term.build());
 	}
 
-	private int createNodeRec(NLHandRounds hand, int raiseIndex, int moveIndex) {
+	private int createNodeRec(NLHandRounds hand, int moveIndex) {
 		nbNodesCreated++;
 		switch (hand.getRoundState()) {
 		case CANCELED:
@@ -67,24 +67,23 @@ public class NLHandBetTreeBuilder {
 			bets.add(-1);
 			NLHandRounds newHand = hand.clone();
 			newHand.nextBetRound();
-			int res = createBetNode(newHand, 0, 0) + RoundBetTree.offset;
+			int res = createBetNode(newHand, 0) + RoundBetTree.offset;
 			bets.remove(bets.size() - 1);
 			return res;
 		case SHOWDOWN:
 			return -RoundBetTree.offset * 2 + createShowDownNode(hand);
 		case WAITING_MOVE:
-			return createBetNode(hand, raiseIndex, moveIndex);
+			return createBetNode(hand, moveIndex);
 		}
 		throw new IllegalComponentStateException("Impossible hand state "
 				+ hand.getRoundState());
 	}
 
-	private int createBetNode(NLHandRounds hand, int raiseIndex, int moveIndex) {
+	private int createBetNode(NLHandRounds hand, int moveIndex) {
 		final BetChoice choice = hand.getBetChoice();
 		final PlayersData playersData = hand.getPlayersData();
 		final int player = choice.getPlayer();
-		final int[] bets = slicer.slice(hand.getCurrentPots(), playersData,
-				choice, raiseIndex, hand.getBetRoundIndex());
+		final int[] bets = slicer.slice(hand.clone());
 		final BetNode node = new BetNode(player, bets);
 		final int res = moveIndex == 0 ? rounds[hand.getBetRoundIndex()]
 				.findOrCreateStartBetNode(node) : rounds[hand
@@ -93,12 +92,11 @@ public class NLHandBetTreeBuilder {
 		final int callValue = choice.getCallValue().getValue();
 		for (int i = 0; i < bets.length; i++) {
 			final NLHandRounds newHand = hand.clone();
-			if (bets[i] == BetRangeSlicer.fold) {
+			if (bets[i] == NLBetRangeSlicer.fold) {
 				if (!newHand.doMove(Move.getFold(player)))
 					throw new IllegalStateException("Can't do this move");
-				this.bets.add(BetRangeSlicer.fold);
-				node.getNextNodes()[i] = createNodeRec(newHand, raiseIndex,
-						moveIndex + 1);
+				this.bets.add(NLBetRangeSlicer.fold);
+				node.getNextNodes()[i] = createNodeRec(newHand, moveIndex + 1);
 				this.bets.remove(this.bets.size() - 1);
 				continue;
 			}
@@ -106,18 +104,7 @@ public class NLHandBetTreeBuilder {
 				this.bets.add(callValue);
 				newHand.doMove(Move.getCall(player, callValue,
 						playersData.getBets()[player]));
-				node.getNextNodes()[i] = createNodeRec(newHand, raiseIndex,
-						moveIndex + 1);
-				this.bets.remove(this.bets.size() - 1);
-				continue;
-			}
-			if (raiseIndex == 0) {
-				this.bets.add(bets[i]);
-				if (!newHand.doMove(Move.getBet(choice.getPlayer(), bets[i])))
-					throw new IllegalStateException("Can't do this move");
-
-				node.getNextNodes()[i] = createNodeRec(newHand, raiseIndex + 1,
-						moveIndex + 1);
+				node.getNextNodes()[i] = createNodeRec(newHand, moveIndex + 1);
 				this.bets.remove(this.bets.size() - 1);
 				continue;
 			}
@@ -125,8 +112,7 @@ public class NLHandBetTreeBuilder {
 			if (!newHand.doMove(Move.getRaise(choice.getPlayer(), bets[i],
 					playersData.getBets()[player])))
 				throw new IllegalStateException("Can't do this move");
-			node.getNextNodes()[i] = createNodeRec(newHand, raiseIndex + 1,
-					moveIndex + 1);
+			node.getNextNodes()[i] = createNodeRec(newHand, moveIndex + 1);
 			this.bets.remove(this.bets.size() - 1);
 		}
 		return res;
@@ -144,7 +130,7 @@ public class NLHandBetTreeBuilder {
 	}
 
 	/**
-	 * Build a betting tree for a hand given a {@link BetRangeSlicer}
+	 * Build a betting tree for a hand given a {@link NLBetRangeSlicer}
 	 * 
 	 * @param hand
 	 *            the hand for which the betting tree must be built
@@ -153,7 +139,7 @@ public class NLHandBetTreeBuilder {
 	 * @return the resulting {@link BettingTree}
 	 */
 	public static BettingTree getBetTree(NLHandRounds hand,
-			BetRangeSlicer slicer) {
+			NLBetRangeSlicer slicer) {
 		checkNotNull(hand, "The hand cannot be null");
 		checkArgument(hand.getRoundState() == RoundState.WAITING_MOVE,
 				"The hand doesn't seem to expect a move");

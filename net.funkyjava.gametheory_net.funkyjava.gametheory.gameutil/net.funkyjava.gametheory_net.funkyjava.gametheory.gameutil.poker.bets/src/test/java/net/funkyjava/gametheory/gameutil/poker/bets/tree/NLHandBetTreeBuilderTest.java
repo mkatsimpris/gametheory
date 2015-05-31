@@ -38,7 +38,7 @@ public class NLHandBetTreeBuilderTest {
 		builder.shouldPostEnteringBb(new boolean[] { false, true });
 		NLHandRounds hand = new NLHandRounds(new BlindsAnteParameters(
 				playersData, builder.build()), 4, 1, false);
-		SampleBetRangeSlicer slicer = new SampleBetRangeSlicer(2, 6);
+		NLPushFoldBetRangeSlicer slicer = new NLPushFoldBetRangeSlicer();
 		BettingTree bTree = NLHandBetTreeBuilder.getBetTree(hand, slicer);
 		RoundBetTree[] trees = bTree.getRoundBetTrees();
 		int nbNodes = 0;

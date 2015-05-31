@@ -6,6 +6,7 @@ package net.funkyjava.gametheory.gameutil.poker.bets.rounds.betround;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.ToString;
 
 /**
  * Represents a choice a player has to make, containing all options : bet, raise
@@ -15,6 +16,7 @@ import lombok.NonNull;
  * 
  */
 @AllArgsConstructor
+@ToString
 public class BetChoice {
 
 	/**

@@ -34,7 +34,7 @@ public class CallValue {
 	 * @return true when valid
 	 */
 	public boolean isValid() {
-		return value >= 0 && toAdd >= value;
+		return value >= 0 && toAdd <= value;
 	}
 
 	/**
