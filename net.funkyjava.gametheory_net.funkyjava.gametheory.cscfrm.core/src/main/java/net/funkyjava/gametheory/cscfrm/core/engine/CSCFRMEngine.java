@@ -150,122 +150,116 @@ public final class CSCFRMEngine {
 	/**
 	 * Train.
 	 * 
-	 * @param nbIter
-	 *            the number of iterations to perform
 	 * @throws Exception
 	 *             any exception that can be caused by a malformed game
 	 */
-	public void train(final int nbIter) throws Exception {
-		for (iter = 0; iter < nbIter; iter++) {
-			forward = true;
-			depth = -1;
-			for (i = 0; i < nbPlayers; i++)
-				realizationWeight[0][i] = 1;
-			game.onIterationStart();
-			while (true) {
-				if (forward) {
-					nextDepth = (++depth) + 1;
-					iterNodes[depth] = node = game.getCurrentNode();
-					if (node.bType == 2) {
-						// Terminal
-						forward = false;
-						if (!readTerminalUtil || (a = node.id) < 0) {
-							System.arraycopy(node.payoffs, 0,
-									itUtil = util[depth], 0, nbPlayers);
-							if (depth > 0)
-								continue;
-							break;
-						}
-						termUtils.read(a, itUtil = util[depth]);
+	public void train() throws Exception {
+		forward = true;
+		depth = -1;
+		for (i = 0; i < nbPlayers; i++)
+			realizationWeight[0][i] = 1;
+		game.onIterationStart();
+		while (true) {
+			if (forward) {
+				nextDepth = (++depth) + 1;
+				iterNodes[depth] = node = game.getCurrentNode();
+				if (node.bType == 2) {
+					// Terminal
+					forward = false;
+					if (!readTerminalUtil || (a = node.id) < 0) {
+						System.arraycopy(node.payoffs, 0, itUtil = util[depth],
+								0, nbPlayers);
 						if (depth > 0)
 							continue;
 						break;
 					}
-					itUtil = util[depth];
-					System.arraycopy(zero, 0, itUtil, 0, nbPlayers);
-					if (node.bType == 0) { // Chance
-						System.arraycopy(realizationWeight[depth], 0,
-								realizationWeight[nextDepth], 0, nbPlayers);
-						game.choseChanceAction();
-						continue;
-					}
-					// Player
-					iterNodeLastAction[depth] = 0;
-					totalRegret = 0;
-					itRegret = node.regretSum;
-					itStrat = strategies[depth];
-					player = node.player;
-					nbActions = (stratSum = node.stratSum).length;
-					weight = (itReal = realizationWeight[depth])[player];
-					System.arraycopy(itReal, 0,
-							itNextReal = realizationWeight[nextDepth], 0,
-							nbPlayers);
-					if (lockPlayersNodes)
-						node.lock();
-					for (a = 0; a < nbActions; a++)
-						totalRegret += itStrat[a] = (itRegret[a] > 0 ? itRegret[a]
-								: 0);
-					if (totalRegret > 0)
-						for (a = 0; a < nbActions; a++)
-							stratSum[a] += weight * (itStrat[a] /= totalRegret);
-					else
-						for (a = 0; a < nbActions; a++)
-							stratSum[a] += weight
-									* (itStrat[a] = 1.0 / nbActions);
-					itNextReal[player] *= itStrat[0];
-					game.chosePlayerAction(0);
-					continue;
-				}
-				game.back();
-				nextDepth = depth--;
-				node = iterNodes[depth];
-				if (node.bType == 0) { // Chance
-					if (depth > 0) {
-						System.arraycopy(util[nextDepth], 0, util[depth], 0,
-								nbPlayers);
-						continue;
-					}
-					itUtil = util[nextDepth];
-					break;
-				}
-				itUtil = util[depth];
-				itNextUtil = util[nextDepth];
-				// Player
-				player = node.player;
-				itStrat = strategies[depth];
-				nbActions = (itRegret = node.regretSum).length;
-				action = iterNodeLastAction[depth];
-				for (p = 0; p < nbPlayers; p++)
-					itUtil[p] += itStrat[action]
-							* (pNodesUtil[depth][action][p] = itNextUtil[p]);
-				itReal = realizationWeight[depth];
-				if (nbActions - 1 == action) {
-					weight = 1;
-					for (p = 0; p < nbPlayers; p++)
-						if (p != player)
-							weight *= itReal[p];
-					for (a = 0; a < nbActions; a++)
-						itRegret[a] += weight
-								* (pNodesUtil[depth][a][player] - itUtil[player]);
-					if (updateVisits) {
-						node.visits++;
-						node.realWeightSum += weight;
-					}
-					if (lockPlayersNodes)
-						node.unlock();
+					termUtils.read(a, itUtil = util[depth]);
 					if (depth > 0)
 						continue;
 					break;
 				}
-				action = ++iterNodeLastAction[depth];
-				forward = true;
+				itUtil = util[depth];
+				System.arraycopy(zero, 0, itUtil, 0, nbPlayers);
+				if (node.bType == 0) { // Chance
+					System.arraycopy(realizationWeight[depth], 0,
+							realizationWeight[nextDepth], 0, nbPlayers);
+					game.choseChanceAction();
+					continue;
+				}
+				// Player
+				iterNodeLastAction[depth] = 0;
+				totalRegret = 0;
+				itRegret = node.regretSum;
+				itStrat = strategies[depth];
+				player = node.player;
+				nbActions = (stratSum = node.stratSum).length;
+				weight = (itReal = realizationWeight[depth])[player];
 				System.arraycopy(itReal, 0,
 						itNextReal = realizationWeight[nextDepth], 0, nbPlayers);
-				itNextReal[player] *= itStrat[action];
-				game.chosePlayerAction(action);
+				if (lockPlayersNodes)
+					node.lock();
+				for (a = 0; a < nbActions; a++)
+					totalRegret += itStrat[a] = (itRegret[a] > 0 ? itRegret[a]
+							: 0);
+				if (totalRegret > 0)
+					for (a = 0; a < nbActions; a++)
+						stratSum[a] += weight * (itStrat[a] /= totalRegret);
+				else
+					for (a = 0; a < nbActions; a++)
+						stratSum[a] += weight * (itStrat[a] = 1.0 / nbActions);
+				itNextReal[player] *= itStrat[0];
+				game.chosePlayerAction(0);
+				continue;
 			}
-			utilMgr.addIterUtil(itUtil);
+			game.back();
+			nextDepth = depth--;
+			node = iterNodes[depth];
+			if (node.bType == 0) { // Chance
+				if (depth > 0) {
+					System.arraycopy(util[nextDepth], 0, util[depth], 0,
+							nbPlayers);
+					continue;
+				}
+				itUtil = util[nextDepth];
+				break;
+			}
+			itUtil = util[depth];
+			itNextUtil = util[nextDepth];
+			// Player
+			player = node.player;
+			itStrat = strategies[depth];
+			nbActions = (itRegret = node.regretSum).length;
+			action = iterNodeLastAction[depth];
+			for (p = 0; p < nbPlayers; p++)
+				itUtil[p] += itStrat[action]
+						* (pNodesUtil[depth][action][p] = itNextUtil[p]);
+			itReal = realizationWeight[depth];
+			if (nbActions - 1 == action) {
+				weight = 1;
+				for (p = 0; p < nbPlayers; p++)
+					if (p != player)
+						weight *= itReal[p];
+				for (a = 0; a < nbActions; a++)
+					itRegret[a] += weight
+							* (pNodesUtil[depth][a][player] - itUtil[player]);
+				if (updateVisits) {
+					node.visits++;
+					node.realWeightSum += weight;
+				}
+				if (lockPlayersNodes)
+					node.unlock();
+				if (depth > 0)
+					continue;
+				break;
+			}
+			action = ++iterNodeLastAction[depth];
+			forward = true;
+			System.arraycopy(itReal, 0,
+					itNextReal = realizationWeight[nextDepth], 0, nbPlayers);
+			itNextReal[player] *= itStrat[action];
+			game.chosePlayerAction(action);
 		}
+		utilMgr.addIterUtil(itUtil);
 	}
 
 	/**

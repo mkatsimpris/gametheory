@@ -1,14 +1,8 @@
 package net.funkyjava.gametheory.gameutil.poker.bets.tree;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.awt.IllegalComponentStateException;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
 import net.funkyjava.gametheory.gameutil.poker.bets.moves.Move;
 import net.funkyjava.gametheory.gameutil.poker.bets.rounds.NLHandRounds;
 import net.funkyjava.gametheory.gameutil.poker.bets.rounds.RoundState;
@@ -18,133 +12,78 @@ import net.funkyjava.gametheory.gameutil.poker.bets.rounds.betround.BetChoice;
 import net.funkyjava.gametheory.gameutil.poker.bets.rounds.blindsround.BlindValue;
 import net.funkyjava.gametheory.gameutil.poker.bets.rounds.blindsround.BlindValue.Type;
 import net.funkyjava.gametheory.gameutil.poker.bets.rounds.data.PlayersData;
-import net.funkyjava.gametheory.gameutil.poker.bets.tree.model.BetNode;
-import net.funkyjava.gametheory.gameutil.poker.bets.tree.model.PotsNodes;
 
 /**
- * Class to build a hand reduced bet tree via it's method
- * {@link #getBetTree(NLHandRounds, NLBetRangeSlicer)}
+ * Class to simply builds a reduced tree for a given hand state and a bet range
+ * slicer
  * 
  * @author Pierre Mardon
  * 
  */
-@Slf4j
 public class NLHandBetTreeBuilder {
-	private final RoundBetTreeBuilder[] rounds;
+
+	private final NLBetTreeNode root;
 	private final NLBetRangeSlicer slicer;
-	private final NLHandRounds baseHand;
-	private int nbNodesCreated = 0;
-	private final TerminalNodesBuilder term = new TerminalNodesBuilder();
+	private final NLBetTreeBuildingReducer reducer;
 
-	private List<Integer> bets = new LinkedList<>();
-
-	private NLHandBetTreeBuilder(NLHandRounds hand, NLBetRangeSlicer slicer) {
+	private NLHandBetTreeBuilder(NLBetRangeSlicer slicer, NLHandRounds hand,
+			NLBetTreeBuildingReducer reducer) {
 		this.slicer = slicer;
-		rounds = new RoundBetTreeBuilder[hand.getNbBetRounds()];
-		for (int i = 0; i < rounds.length; i++)
-			rounds[i] = new RoundBetTreeBuilder();
-		this.baseHand = hand;
-	};
-
-	private BettingTree getBettingTree() {
-		createNodeRec(baseHand, 0);
-		log.info("End generating bet tree, {} nodes created ", nbNodesCreated);
-		RoundBetTree[] res = new RoundBetTree[rounds.length];
-		for (int i = 0; i < rounds.length; i++)
-			res[i] = rounds[i].build();
-		return new BettingTree(res, term.build());
+		this.reducer = reducer;
+		doAnteAndBlinds(hand);
+		this.root = createNodeRec(hand);
 	}
 
-	private int createNodeRec(NLHandRounds hand, int moveIndex) {
-		nbNodesCreated++;
+	private NLBetTreeNode createNodeRec(NLHandRounds hand) {
 		switch (hand.getRoundState()) {
 		case CANCELED:
 			throw new IllegalComponentStateException("Wrong hand state "
 					+ hand.getRoundState());
 		case END_NO_SHOWDOWN:
-			return -RoundBetTree.offset + createNoShowDownNode(hand);
+			return reducer
+					.findEquivalent(NLBetTreeNode.getNoShowdownNode(hand));
 		case NEXT_ROUND:
-			bets.add(-1);
 			NLHandRounds newHand = hand.clone();
 			newHand.nextBetRound();
-			int res = createBetNode(newHand, 0) + RoundBetTree.offset;
-			bets.remove(bets.size() - 1);
-			return res;
+			return createBetNode(newHand);
 		case SHOWDOWN:
-			return -RoundBetTree.offset * 2 + createShowDownNode(hand);
+			return reducer.findEquivalent(NLBetTreeNode.getShowdownNode(hand));
 		case WAITING_MOVE:
-			return createBetNode(hand, moveIndex);
+			return createBetNode(hand);
 		}
 		throw new IllegalComponentStateException("Impossible hand state "
 				+ hand.getRoundState());
 	}
 
-	private int createBetNode(NLHandRounds hand, int moveIndex) {
+	private NLBetTreeNode createBetNode(NLHandRounds hand) {
 		final BetChoice choice = hand.getBetChoice();
 		final PlayersData playersData = hand.getPlayersData();
 		final int player = choice.getPlayer();
 		final int[] bets = slicer.slice(hand.clone());
-		final BetNode node = new BetNode(player, bets);
-		final int res = moveIndex == 0 ? rounds[hand.getBetRoundIndex()]
-				.findOrCreateStartBetNode(node) : rounds[hand
-				.getBetRoundIndex()].createBetNode(node);
-		// Fill the node
+		final NLBetTreeNode node = NLBetTreeNode.getBetNode(hand, bets);
+
+		// Fill the node with children
 		final int callValue = choice.getCallValue().getValue();
 		for (int i = 0; i < bets.length; i++) {
 			final NLHandRounds newHand = hand.clone();
 			if (bets[i] == NLBetRangeSlicer.fold) {
 				if (!newHand.doMove(Move.getFold(player)))
 					throw new IllegalStateException("Can't do this move");
-				this.bets.add(NLBetRangeSlicer.fold);
-				node.getNextNodes()[i] = createNodeRec(newHand, moveIndex + 1);
-				this.bets.remove(this.bets.size() - 1);
+				node.setChild(i, createNodeRec(newHand));
 				continue;
 			}
 			if (bets[i] == callValue) {
-				this.bets.add(callValue);
 				newHand.doMove(Move.getCall(player, callValue,
 						playersData.getBets()[player]));
-				node.getNextNodes()[i] = createNodeRec(newHand, moveIndex + 1);
-				this.bets.remove(this.bets.size() - 1);
+				node.setChild(i, createNodeRec(newHand));
 				continue;
 			}
-			this.bets.add(bets[i]);
 			if (!newHand.doMove(Move.getRaise(choice.getPlayer(), bets[i],
 					playersData.getBets()[player])))
 				throw new IllegalStateException("Can't do this move");
-			node.getNextNodes()[i] = createNodeRec(newHand, moveIndex + 1);
-			this.bets.remove(this.bets.size() - 1);
+			node.setChild(i, createNodeRec(newHand));
 		}
-		return res;
-	}
-
-	private int createShowDownNode(NLHandRounds hand) {
-		return term.findOrCreateShowDownNode(new PotsNodes(hand
-				.getCurrentPots()));
-	}
-
-	private int createNoShowDownNode(NLHandRounds hand) {
-		// System.err.println("createNoShowDownNode");
-		return term.findOrCreateNoShowDownNode(new PotsNodes(hand
-				.getCurrentPots()));
-	}
-
-	/**
-	 * Build a betting tree for a hand given a {@link NLBetRangeSlicer}
-	 * 
-	 * @param hand
-	 *            the hand for which the betting tree must be built
-	 * @param slicer
-	 *            the bet range slicer to reduce the bet possibilities
-	 * @return the resulting {@link BettingTree}
-	 */
-	public static BettingTree getBetTree(NLHandRounds hand,
-			NLBetRangeSlicer slicer) {
-		checkNotNull(hand, "The hand cannot be null");
-		checkArgument(hand.getRoundState() == RoundState.WAITING_MOVE,
-				"The hand doesn't seem to expect a move");
-		doAnteAndBlinds(hand);
-		return new NLHandBetTreeBuilder(hand, slicer).getBettingTree();
+		return reducer.findEquivalent(node);
 	}
 
 	/**
@@ -153,7 +92,7 @@ public class NLHandBetTreeBuilder {
 	 * @param hand
 	 *            the hand to perform payments
 	 */
-	public static void doAnteAndBlinds(NLHandRounds hand) {
+	private static void doAnteAndBlinds(NLHandRounds hand) {
 		if (hand.getRoundType() == RoundType.ANTE) {
 			if (hand.getRoundState() == RoundState.WAITING_MOVE) {
 				Map<Integer, AnteValue> antes = hand.getMissingAnte();
@@ -186,4 +125,43 @@ public class NLHandBetTreeBuilder {
 		}
 	}
 
+	/**
+	 * Builds a indexed and reduced NL betting tree
+	 * {@link NLBetTreeNode#roundNodeIndex} set to 0
+	 * 
+	 * @param hand
+	 *            the hand in its initial state
+	 * @param slicer
+	 *            the bet slicer to decide what bets are allowed
+	 * @param reducer
+	 *            the tree reducer
+	 * @return the indexed betting tree
+	 */
+	public static NLIndexedBetTree getTree(NLHandRounds hand,
+			NLBetRangeSlicer slicer, NLBetTreeBuildingReducer reducer) {
+		return new NLIndexedBetTree(new NLHandBetTreeBuilder(slicer, hand,
+				reducer).root);
+	}
+
+	/**
+	 * Builds a indexed and not reduced NL betting tree
+	 * {@link NLBetTreeNode#roundNodeIndex} set to 0
+	 * 
+	 * @param hand
+	 *            the hand in its initial state
+	 * @param slicer
+	 *            the bet slicer to decide what bets are allowed
+	 * @return the indexed betting tree
+	 */
+	public static NLIndexedBetTree getTree(NLHandRounds hand,
+			NLBetRangeSlicer slicer) {
+		return new NLIndexedBetTree(new NLHandBetTreeBuilder(slicer, hand,
+				new NLBetTreeBuildingReducer() {
+
+					@Override
+					public NLBetTreeNode findEquivalent(NLBetTreeNode sourceNode) {
+						return sourceNode;
+					}
+				}).root);
+	}
 }

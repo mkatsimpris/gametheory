@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import lombok.extern.slf4j.Slf4j;
 import net.funkyjava.gametheory.cscfrm.core.engine.CSCFRMConfig;
 import net.funkyjava.gametheory.cscfrm.core.engine.CSCFRMEngine;
 import net.funkyjava.gametheory.cscfrm.core.engine.CSCFRMUtilityManager;
@@ -18,7 +19,6 @@ import net.funkyjava.gametheory.cscfrm.model.game.CSCFRMGame;
 import net.funkyjava.gametheory.cscfrm.model.game.CSCFRMGameBuilder;
 import net.funkyjava.gametheory.cscfrm.model.game.nodes.PlayerNode;
 import net.funkyjava.gametheory.cscfrm.model.game.nodes.provider.NodesProvider;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Multi-threaded executor. Thread safe while no change is performed on game,
@@ -224,7 +224,8 @@ public class CSCFRMMultiThreadExecutor<PNode extends PlayerNode, GameClass exten
 		@Override
 		public void run() {
 			try {
-				engine.train(nbIter);
+				for (int i = 0; i < nbIter; i++)
+					engine.train();
 			} catch (Exception e) {
 				log.error(
 						"Task threw {}, calling emergency procedure to avoid dead locks on player nodes",
@@ -243,7 +244,6 @@ public class CSCFRMMultiThreadExecutor<PNode extends PlayerNode, GameClass exten
 				syncObject.notifyAll();
 			}
 		}
-
 	}
 
 	/**

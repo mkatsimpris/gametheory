@@ -8,61 +8,85 @@ import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import net.funkyjava.gametheory.gameutil.poker.bets.pots.Pot;
 import net.funkyjava.gametheory.gameutil.poker.bets.pots.SharedPot;
 import net.funkyjava.gametheory.gameutil.poker.bets.rounds.NLHandRounds;
 import net.funkyjava.gametheory.gameutil.poker.bets.rounds.RoundState;
 
+/**
+ * 
+ * A bet tree node represents a node in the bet sequences tree.
+ * 
+ * @author Pierre Mardon
+ * 
+ */
 @AllArgsConstructor
-public class BetTreeNode {
+public class NLBetTreeNode {
 
 	/**
-	 * The children of this node when it's a bet node
+	 * The children of this node when it's a bet node, null elsewhere
 	 */
-	private BetTreeNode[] children = null;
-
-	/**
-	 * Parent node
-	 */
-	@Getter
-	private final BetTreeNode parent;
+	private final NLBetTreeNode[] children;
 
 	/**
 	 * Index of the round this node is part of
 	 */
 	@Getter
-	private final int betRoundIndex;
+	private int betRoundIndex;
 
 	/**
-	 * The index of the node in its round
+	 * The index of the node in its round. Expected to be by node type : bet
+	 * nodes should be indexed from 0 to nb of bet nodes -1 for each round
+	 * Initial value should be < 0
 	 */
 	@Getter
-	private final int roundNodeIndex;
+	@Setter
+	private int roundNodeIndex;
 
 	/**
 	 * Bet choices for a bet node, pot values for the showdown node or
 	 * no-showdown node
 	 */
 	@Getter
-	private final int[] values;
+	public final int[] values;
+
+	/**
+	 * Players stacks
+	 */
+	@Getter
+	public final int[] stacks;
+
 	/**
 	 * Player in each pot for showdown node
 	 */
 	@Getter
-	private final int[][] showdownPlayers;
+	public final int[][] showdownPlayers;
 
 	/**
 	 * Betting player for a bet node, winning player for the no-showdown node,
 	 * no meaning for showdown node
 	 */
 	@Getter
-	private final int player;
+	public final int player;
 
 	/**
-	 * Boolean for the type of node
+	 * Boolean to indicate this node is a bet node
 	 */
 	@Getter
-	private final boolean isBetNode, isShowDownNode, isNoShowDownNode;
+	public final boolean isBetNode;
+
+	/**
+	 * Boolean to indicate this node is a showdown node
+	 */
+	@Getter
+	public final boolean isShowDownNode;
+
+	/**
+	 * Boolean to indicate this node is a no-showdown node
+	 */
+	@Getter
+	public final boolean isNoShowDownNode;
 
 	/**
 	 * The hand state for this node
@@ -87,7 +111,7 @@ public class BetTreeNode {
 	 * @param childIndex
 	 * @return The child for the provided index
 	 */
-	public BetTreeNode getChild(int childIndex) {
+	public NLBetTreeNode getChild(int childIndex) {
 		return children[childIndex];
 	}
 
@@ -109,7 +133,7 @@ public class BetTreeNode {
 	 * @param childIndex
 	 * @param child
 	 */
-	public void setChild(int childIndex, BetTreeNode child) {
+	public void setChild(int childIndex, NLBetTreeNode child) {
 		children[childIndex] = child;
 	}
 
@@ -129,7 +153,7 @@ public class BetTreeNode {
 	 * 
 	 * @return the children nodes
 	 */
-	public List<BetTreeNode> getChildren() {
+	public List<NLBetTreeNode> getChildren() {
 		checkArgument(isBetNode, "This is not a bet node");
 		return Arrays.asList(children);
 	}
@@ -139,8 +163,8 @@ public class BetTreeNode {
 	 * 
 	 * @return the bet value / child map
 	 */
-	public HashMap<Integer, BetTreeNode> getBetsChildren() {
-		final HashMap<Integer, BetTreeNode> res = new HashMap<Integer, BetTreeNode>();
+	public HashMap<Integer, NLBetTreeNode> getBetsChildren() {
+		final HashMap<Integer, NLBetTreeNode> res = new HashMap<Integer, NLBetTreeNode>();
 		for (int i = 0; i < children.length; i++)
 			res.put(values[i], children[i]);
 		return res;
@@ -151,20 +175,17 @@ public class BetTreeNode {
 	 * 
 	 * @param hand
 	 *            state of the hand for this node
-	 * @param parent
-	 *            parent node or null if root
-	 * @param roundNodeIndex
-	 *            the index of the node in this bet round
 	 * @param betChoices
 	 *            all possible fold/call/bet/raise represented by integers
 	 * @return the bet tree node
 	 */
-	public static BetTreeNode getBetNode(NLHandRounds hand, BetTreeNode parent,
-			int[] betChoices, int roundNodeIndex) {
-		checkArgument(hand.getRoundState() == RoundState.WAITING_MOVE);
-		return new BetTreeNode(new BetTreeNode[betChoices.length], parent,
-				hand.getBetRoundIndex(), roundNodeIndex, betChoices, null,
-				hand.getBettingPlayer(), true, false, false, hand);
+	public static NLBetTreeNode getBetNode(NLHandRounds hand, int[] betChoices) {
+		checkArgument(hand.getRoundState() == RoundState.WAITING_MOVE,
+				"Wrong round state for a bet node");
+		return new NLBetTreeNode(new NLBetTreeNode[betChoices.length],
+				hand.getBetRoundIndex(), -1, betChoices, hand.getPlayersData()
+						.getStacks(), null, hand.getBettingPlayer(), true,
+				false, false, hand);
 	}
 
 	/**
@@ -172,15 +193,11 @@ public class BetTreeNode {
 	 * 
 	 * @param hand
 	 *            state of the hand for this node
-	 * @param parent
-	 *            parent node or null if root
-	 * @param roundNodeIndex
-	 *            the index of the node in this bet round
 	 * @return the bet tree node
 	 */
-	public static BetTreeNode getShowdownNode(NLHandRounds hand,
-			BetTreeNode parent, int roundNodeIndex) {
-		checkArgument(hand.getRoundState() == RoundState.SHOWDOWN);
+	public static NLBetTreeNode getShowdownNode(NLHandRounds hand) {
+		checkArgument(hand.getRoundState() == RoundState.SHOWDOWN,
+				"Wrong round state for a showdown node");
 		final List<Pot<Integer>> pots = hand.getCurrentPots();
 		final int nbOfPots = pots.size();
 		final int[] potsValues = new int[nbOfPots];
@@ -194,9 +211,9 @@ public class BetTreeNode {
 			for (int j = 0; j < nbPlayers; j++)
 				potsPlayers[i][j] = players.get(j);
 		}
-		return new BetTreeNode(null, parent, hand.getBetRoundIndex(),
-				roundNodeIndex, potsValues, potsPlayers, -1, false, true,
-				false, hand);
+		return new NLBetTreeNode(null, hand.getBetRoundIndex(), -1, potsValues,
+				hand.getPlayersData().getStacks(), potsPlayers, -1, false,
+				true, false, hand);
 	}
 
 	/**
@@ -204,15 +221,11 @@ public class BetTreeNode {
 	 * 
 	 * @param hand
 	 *            state of the hand for this node
-	 * @param parent
-	 *            parent node or null if root
-	 * @param roundNodeIndex
-	 *            the index of the node in this bet round
 	 * @return the bet tree node
 	 */
-	public static BetTreeNode getNoShowdownNode(NLHandRounds hand,
-			BetTreeNode parent, int roundNodeIndex) {
-		checkArgument(hand.getRoundState() == RoundState.END_NO_SHOWDOWN);
+	public static NLBetTreeNode getNoShowdownNode(NLHandRounds hand) {
+		checkArgument(hand.getRoundState() == RoundState.END_NO_SHOWDOWN,
+				"Wrong round state for a no-showdown node");
 		final List<SharedPot<Integer>> pots = hand.getSharedPots().get();
 		checkArgument(!pots.isEmpty(),
 				"There is no pot to create this showdown node");
@@ -225,8 +238,21 @@ public class BetTreeNode {
 			winningPlayer = pot.getPlayers().get(0);
 		}
 
-		return new BetTreeNode(null, parent, hand.getBetRoundIndex(),
-				roundNodeIndex, potsValues, null, winningPlayer, false, false,
-				true, hand);
+		return new NLBetTreeNode(null, hand.getBetRoundIndex(), -1, potsValues,
+				hand.getPlayersData().getStacks(), null, winningPlayer, false,
+				false, true, hand);
+	}
+
+	public static void walkTree(NLBetTreeNode rootNode, SimpleNLBetTreeWalker walker) {
+		walkTree(rootNode, walker, 0, 0);
+	}
+
+	private static void walkTree(NLBetTreeNode rootNode,
+			SimpleNLBetTreeWalker walker, int depth, int lastBet) {
+		if (walker.handleCurrentNode(rootNode, depth, lastBet)
+				&& rootNode.isBetNode())
+			for (int i = 0; i < rootNode.getChildrenCount(); i++)
+				walkTree(rootNode.getChild(i), walker, depth + 1,
+						rootNode.getValues()[i]);
 	}
 }

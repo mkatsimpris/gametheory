@@ -23,8 +23,9 @@ import org.apache.commons.math3.util.CombinatoricsUtils;
  * </ul>
  * </p>
  * <p>
- * The cards are integers between 0 and 51. The number of cards to draw is
- * determined by the destination array where thoses bytes will be written.
+ * The cards are integers between 0 and 51 with an optional offset. The number
+ * of cards to draw is determined by the destination array where thoses bytes
+ * will be written.
  * </p>
  * <p>
  * A better {@link RandomGenerator} like {@link ISAACRandom} or

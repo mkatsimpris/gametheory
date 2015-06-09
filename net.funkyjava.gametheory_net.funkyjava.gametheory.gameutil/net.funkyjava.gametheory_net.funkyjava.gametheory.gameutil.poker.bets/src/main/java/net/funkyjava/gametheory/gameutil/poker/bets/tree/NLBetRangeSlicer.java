@@ -4,7 +4,7 @@ import net.funkyjava.gametheory.gameutil.poker.bets.rounds.NLHandRounds;
 
 /**
  * A {@link NLBetRangeSlicer} should be able to provide a subset of possible
- * player bets to build a {@link RoundBetTree}
+ * player bets to build a {@link NLBetTreeNode}
  * 
  * @author Pierre Mardon
  * 

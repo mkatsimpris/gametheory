@@ -329,6 +329,10 @@ public class NLHandRounds implements Cloneable {
 				.getMoves();
 	}
 
+	public List<Move<Integer>> getCurrentRoundBetMoves() {
+		return getBetMoves(round - roundOffset);
+	}
+
 	/**
 	 * Get the bet moves of a all bet rounds
 	 * 

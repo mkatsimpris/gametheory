@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import java.io.IOException;
 
+import lombok.extern.slf4j.Slf4j;
 import net.funkyjava.gametheory.cscfrm.core.engine.CSCFRMConfig;
 import net.funkyjava.gametheory.cscfrm.core.engine.CSCFRMEngine;
 import net.funkyjava.gametheory.cscfrm.core.loading.CSCFRMCtxExecutionLoaderProvider;
@@ -11,7 +12,6 @@ import net.funkyjava.gametheory.cscfrm.core.loading.CSCFRMExecutionLoader;
 import net.funkyjava.gametheory.cscfrm.core.loading.CSCFRMExecutionLoaderConfig;
 import net.funkyjava.gametheory.cscfrm.model.game.CSCFRMGame;
 import net.funkyjava.gametheory.cscfrm.model.game.nodes.PlayerNode;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Convenience class to execute CSCFRM algorithm on a given game, mono-threaded
@@ -88,7 +88,8 @@ public class CSCFRMMonothreadExecutor<PNode extends PlayerNode, GameClass extend
 		checkArgument(nbIter > 0, "The number of iterations must be > 0");
 		log.info("Running for {} iterations", nbIter);
 		try {
-			engine.train(nbIter);
+			for (int i = 0; i < nbIter; i++)
+				engine.train();
 		} catch (Exception e) {
 			log.error("Engine threw {}, check your game's implementation", e);
 			throw e;

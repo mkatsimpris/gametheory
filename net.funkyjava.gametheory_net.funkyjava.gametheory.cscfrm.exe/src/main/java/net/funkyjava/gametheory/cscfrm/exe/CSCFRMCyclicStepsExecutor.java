@@ -11,6 +11,7 @@ import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import lombok.extern.slf4j.Slf4j;
 import net.funkyjava.gametheory.cscfrm.core.engine.CSCFRMConfig;
 import net.funkyjava.gametheory.cscfrm.core.engine.CSCFRMEngine;
 import net.funkyjava.gametheory.cscfrm.core.engine.CSCFRMMultithreadUtilityManager;
@@ -23,7 +24,6 @@ import net.funkyjava.gametheory.cscfrm.model.game.cyclic.CSCFRMCyclicStepsGameBu
 import net.funkyjava.gametheory.cscfrm.model.game.nodes.Node;
 import net.funkyjava.gametheory.cscfrm.model.game.nodes.PlayerNode;
 import net.funkyjava.gametheory.cscfrm.model.game.nodes.provider.NodesProvider;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -224,7 +224,7 @@ public class CSCFRMCyclicStepsExecutor<PNode extends PlayerNode, StepGame extend
 		public void run() {
 			try {
 				for (i = 0; i < nbIter; i++) {
-					engines[chosenStep = rand.nextInt(nbEngines)].train(1);
+					engines[chosenStep = rand.nextInt(nbEngines)].train();
 				}
 			} catch (Exception e) {
 				log.error(

@@ -74,9 +74,7 @@ public class EHS_EHS2FlopEvaluatorTest {
 	 */
 	@Test
 	public void testPerformance() throws Exception {
-		log.info("Testing EHS2 evaluator performance");
-		final FlopIndexer indexer = new FlopIndexer();
-		indexer.initialize();
+		log.info("Testing EHS_EHS2 evaluator performance");
 		final IntCardsSpec specs = DefaultIntCardsSpecs.getDefault();
 		Cards52Strings c = new Cards52Strings(specs);
 		log.info("Initializing 2+2 evaluator");

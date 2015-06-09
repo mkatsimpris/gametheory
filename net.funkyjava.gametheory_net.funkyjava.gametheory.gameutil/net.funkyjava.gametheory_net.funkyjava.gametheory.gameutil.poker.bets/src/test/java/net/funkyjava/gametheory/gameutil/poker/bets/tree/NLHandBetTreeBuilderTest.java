@@ -39,27 +39,10 @@ public class NLHandBetTreeBuilderTest {
 		NLHandRounds hand = new NLHandRounds(new BlindsAnteParameters(
 				playersData, builder.build()), 4, 1, false);
 		NLPushFoldBetRangeSlicer slicer = new NLPushFoldBetRangeSlicer();
-		BettingTree bTree = NLHandBetTreeBuilder.getBetTree(hand, slicer);
-		RoundBetTree[] trees = bTree.getRoundBetTrees();
-		int nbNodes = 0;
-		int nbEdges = 0;
-		for (RoundBetTree tree : trees) {
-			nbNodes += tree.getNbNodes();
-			nbEdges += tree.getNbEdges();
-			log.info("Bet nodes {} edges {}", tree.getNbNodes(),
-					tree.getNbEdges());
-		}
-		log.info("Total bet nodes {} edges {}", nbNodes, nbEdges);
-		log.info("Term nodes {} showdown {} noShowdown {}", bTree
-				.getTermNodes().getNbNodes(),
-
-		bTree.getTermNodes().getNbShowdownNodes(),
-
-		bTree.getTermNodes().getNbNoShowdownNodes());
-		nbNodes += bTree.getTermNodes().getNbNodes();
-		log.info("Total nodes {} edges {}", nbNodes, nbEdges);
-		// HandBetTreeBuilder.doAnteAndBlinds(hand);
-		// hand.doMove(Move.getRaise(0, 1000, 10));
-		// log.info("{}", hand.getRoundState());
+		NLIndexedBetTree bTree = NLHandBetTreeBuilder.getTree(hand, slicer);
+		log.info("Finished building Push/Fold bet tree");
+		log.info("Nb of bet nodes {}", bTree.getNbOfBetNodes());
+		NLBetTreeNode.walkTree(bTree.getRootNode(),
+				new SimpleNLBetTreePrinter());
 	}
 }
