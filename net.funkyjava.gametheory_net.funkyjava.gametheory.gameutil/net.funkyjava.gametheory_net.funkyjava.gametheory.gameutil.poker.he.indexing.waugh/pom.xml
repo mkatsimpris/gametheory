@@ -13,4 +13,13 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+  <dependencies>
+  	<dependency>
+  		<groupId>net.funkyjava.gametheory</groupId>
+  		<artifactId>
+  			net.funkyjava.gametheory.gameutil.cards
+  		</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  	</dependency>
+  </dependencies>
 </project>
