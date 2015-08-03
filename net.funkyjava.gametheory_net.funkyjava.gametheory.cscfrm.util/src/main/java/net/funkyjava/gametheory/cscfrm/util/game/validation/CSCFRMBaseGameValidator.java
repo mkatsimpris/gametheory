@@ -240,7 +240,7 @@ public class CSCFRMBaseGameValidator {
 					}
 					lastPlAct[depth] = 0;
 					depth++;
-					game.chosePlayerAction(0);
+					game.onPlayerActionChosen(0);
 					continue;
 				}
 				log.error("Unknown node byte type {}", n.bType);
@@ -264,7 +264,7 @@ public class CSCFRMBaseGameValidator {
 					continue;
 				}
 				forward = true;
-				game.chosePlayerAction(++lastPlAct[depth]);
+				game.onPlayerActionChosen(++lastPlAct[depth]);
 				depth++;
 				continue;
 			}

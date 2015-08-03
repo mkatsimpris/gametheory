@@ -21,5 +21,5 @@ public interface NoChanceGameObserver {
 	 * @param actionIndex
 	 *            the action index
 	 */
-	void chosePlayerAction(int actionIndex);
+	void onPlayerActionChosen(int actionIndex);
 }

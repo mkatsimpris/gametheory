@@ -11,7 +11,7 @@ import net.funkyjava.gametheory.commonmodel.game.nodes.MinPublicNode.Type;
  * <p>
  * A class implementing {@link GameObserver} and {@link GameChancePicker} should
  * expect calls on {@link #choseChanceAction()} EXCLUSIVE OR
- * {@link GameObserver#choseChanceAction(int)} depending on its role.
+ * {@link GameObserver#onChanceActionChosen(int)} depending on its role.
  * </p>
  * 
  * @author Pierre Mardon

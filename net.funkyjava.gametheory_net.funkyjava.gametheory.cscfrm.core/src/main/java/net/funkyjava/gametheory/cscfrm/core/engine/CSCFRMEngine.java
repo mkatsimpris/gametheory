@@ -208,7 +208,7 @@ public final class CSCFRMEngine {
 					for (a = 0; a < nbActions; a++)
 						stratSum[a] += weight * (itStrat[a] = 1.0 / nbActions);
 				itNextReal[player] *= itStrat[0];
-				game.chosePlayerAction(0);
+				game.onPlayerActionChosen(0);
 				continue;
 			}
 			game.back();
@@ -257,7 +257,7 @@ public final class CSCFRMEngine {
 			System.arraycopy(itReal, 0,
 					itNextReal = realizationWeight[nextDepth], 0, nbPlayers);
 			itNextReal[player] *= itStrat[action];
-			game.chosePlayerAction(action);
+			game.onPlayerActionChosen(action);
 		}
 		utilMgr.addIterUtil(itUtil);
 	}

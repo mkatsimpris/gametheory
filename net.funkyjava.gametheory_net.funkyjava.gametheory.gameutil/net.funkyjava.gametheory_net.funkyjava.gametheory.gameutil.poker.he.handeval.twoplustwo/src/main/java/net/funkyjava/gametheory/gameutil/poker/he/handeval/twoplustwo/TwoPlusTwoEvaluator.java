@@ -5,6 +5,9 @@ package net.funkyjava.gametheory.gameutil.poker.he.handeval.twoplustwo;
 
 import static net.funkyjava.gametheory.gameutil.poker.he.handeval.twoplustwo.Generator.handRanks;
 import net.funkyjava.gametheory.gameutil.cards.IntCardsSpec;
+import net.funkyjava.gametheory.gameutil.poker.he.handeval.Holdem5CardsEvaluator;
+import net.funkyjava.gametheory.gameutil.poker.he.handeval.Holdem6CardsEvaluator;
+import net.funkyjava.gametheory.gameutil.poker.he.handeval.Holdem7CardsEvaluator;
 import net.funkyjava.gametheory.gameutil.poker.he.handeval.HoldemFullEvaluator;
 
 /**
@@ -13,7 +16,8 @@ import net.funkyjava.gametheory.gameutil.poker.he.handeval.HoldemFullEvaluator;
  * @author Pierre Mardon
  * 
  */
-public class TwoPlusTwoEvaluator implements HoldemFullEvaluator {
+public class TwoPlusTwoEvaluator implements HoldemFullEvaluator,
+		Holdem5CardsEvaluator, Holdem6CardsEvaluator, Holdem7CardsEvaluator {
 
 	private static final IntCardsSpec spec = new IntCardsSpec() {
 

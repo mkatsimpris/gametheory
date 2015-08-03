@@ -78,6 +78,38 @@ public class WaughIndexerTest {
 						/ ((double) (System.currentTimeMillis() - start)));
 	}
 
+	@Test
+	public void testFullIndex23AllPermsSpeed() {
+		WaughIndexer indexer = new WaughIndexer(new int[] { 2, 3 });
+		long[] toIndex = new long[2];
+		int nb = 0;
+
+		int c1 = 0, c2, c3, c4, c5;
+		long start = System.currentTimeMillis();
+		for (; c1 < 52; c1++)
+			for (c2 = 0; c2 < 52; c2++)
+				if (c2 != c1)
+					for (c3 = 0; c3 < 52; c3++)
+						if (c3 != c1 && c3 != c2)
+							for (c4 = 0; c4 < 52; c4++)
+								if (c4 != c3 && c4 != c2 && c4 != c1)
+									for (c5 = 0; c5 < 52; c5++)
+										if (c5 != c4 && c5 != c3 && c5 != c1
+												&& c5 != c2) {
+											nb++;
+											toIndex[0] = 0x1l << ((c1 % 13) + 16 * (c1 / 13));
+											toIndex[0] |= 0x1l << ((c2 % 13) + 16 * (c2 / 13));
+											toIndex[1] = 0x1l << ((c3 % 13) + 16 * (c3 / 13));
+											toIndex[1] |= 0x1l << ((c4 % 13) + 16 * (c4 / 13));
+											toIndex[1] |= 0x1l << ((c5 % 13) + 16 * (c5 / 13));
+											indexer.index(toIndex);
+										}
+		long time = System.currentTimeMillis() - start;
+		log.info(
+				"WaughIndexer indexed every possible flop with all permutations ({} 2-3 cards groups) at the speed of {} indexings/s, took {} s",
+				nb, 1000 * ((double) nb) / ((double) (time)), time / 1000);
+	}
+
 	private static boolean areEquivalent(long[] src, long[] res,
 			List<Integer> perm) {
 		if (src[0] == res[0] && src[1] == res[1])

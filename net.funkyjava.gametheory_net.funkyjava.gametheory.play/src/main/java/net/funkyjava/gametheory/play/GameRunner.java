@@ -35,24 +35,24 @@ import lombok.extern.slf4j.Slf4j;
  * </p>
  * <p>
  * If the {@link GameChancePicker} is a {@link GameObserver}, its
- * {@link GameObserver#choseChanceAction(int)} will never be called because it's
+ * {@link GameObserver#onChanceActionChosen(int)} will never be called because it's
  * him who generates the chances draws.
  * </p>
  * <p>
  * If any {@link GameObserver} is a {@link GamePlayerDecider}, its
- * {@link GameObserver#chosePlayerAction(int)} will never be called for the
+ * {@link GameObserver#onPlayerActionChosen(int)} will never be called for the
  * players he's deciding for.
  * </p>
  * <p>
  * So when a decider picks a player action (its
- * {@link GamePlayerDecider#chosePlayerAction(int)} is called),
- * {@link NoChanceGameObserver#chosePlayerAction(int)} will be called strictly
+ * {@link GamePlayerDecider#onPlayerActionChosen(int)} is called),
+ * {@link NoChanceGameObserver#onPlayerActionChosen(int)} will be called strictly
  * once on all other objects but him, even if he has several roles.
  * </p>
  * <p>
  * And when the chance picker chooses a chance draw (its
  * {@link GameChancePicker#choseChanceAction()} is called),
- * {@link GameObserver#choseChanceAction(int)} will be called strictly once on
+ * {@link GameObserver#onChanceActionChosen(int)} will be called strictly once on
  * all other objects but him, even if he has several roles.
  * </p>
  * 
@@ -152,13 +152,13 @@ public class GameRunner {
 			case CHANCE:
 				v = chancePicker.choseChanceAction();
 				for (i = 0; i < nbChObservers; i++)
-					chanceObservers[i].choseChanceAction(v);
+					chanceObservers[i].onChanceActionChosen(v);
 				continue;
 			case PLAYER:
 				v = (plDec = deciders[n.getPlayer()]).chosePlayerAction();
 				for (i = 0; i < nbPlObservers; i++)
 					if (playersObservers[i] != plDec)
-						playersObservers[i].chosePlayerAction(v);
+						playersObservers[i].onPlayerActionChosen(v);
 				continue;
 			case TERMINAL:
 				if ((payoffs = n.getPayoffs()) != null)
@@ -192,14 +192,14 @@ public class GameRunner {
 			case CHANCE:
 				v = chancePicker.choseChanceAction();
 				for (i = 0; i < nbChObservers; i++)
-					chanceObservers[i].choseChanceAction(v);
+					chanceObservers[i].onChanceActionChosen(v);
 				continue;
 			case PLAYER:
 				v = (plDec = deciders[decidersPerm[n.getPlayer()]])
 						.chosePlayerAction();
 				for (i = 0; i < nbPlObservers; i++)
 					if (playersObservers[i] != plDec)
-						playersObservers[i].chosePlayerAction(v);
+						playersObservers[i].onPlayerActionChosen(v);
 				continue;
 			case TERMINAL:
 				if ((payoffs = n.getPayoffs()) != null)

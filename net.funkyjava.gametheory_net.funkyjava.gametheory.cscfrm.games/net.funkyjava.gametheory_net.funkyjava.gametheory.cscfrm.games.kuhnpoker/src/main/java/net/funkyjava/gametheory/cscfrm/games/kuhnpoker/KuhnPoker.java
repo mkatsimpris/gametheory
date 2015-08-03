@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Random;
 
+import lombok.extern.slf4j.Slf4j;
 import net.funkyjava.gametheory.cscfrm.model.game.CSCFRMFullGame;
 import net.funkyjava.gametheory.cscfrm.model.game.nodes.ChanceNode;
 import net.funkyjava.gametheory.cscfrm.model.game.nodes.Node;
@@ -14,7 +15,6 @@ import net.funkyjava.gametheory.cscfrm.model.game.nodes.PlayerNode;
 import net.funkyjava.gametheory.cscfrm.model.game.nodes.TerminalNode;
 import net.funkyjava.gametheory.cscfrm.model.game.nodes.provider.NodesProvider;
 import net.funkyjava.gametheory.cscfrm.util.game.helpers.ArraysIterator;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * The KuhnPoker game. Can be both instanciated for classic game and as Kuhn
@@ -285,12 +285,11 @@ public class KuhnPoker<PNode extends PlayerNode> implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * net.funkyjava.cscfrm.game.itf.generic.NoChanceGameObserver#chosePlayerAction
-	 * (int)
+	 * @see net.funkyjava.cscfrm.game.itf.generic.NoChanceGameObserver#
+	 * onPlayerActionChosen (int)
 	 */
 	@Override
-	public void chosePlayerAction(int actionIndex) {
+	public void onPlayerActionChosen(int actionIndex) {
 		if (debug)
 			log.debug("{} : player action {}", seq, actionIndex);
 		switch (seq) {
@@ -381,10 +380,11 @@ public class KuhnPoker<PNode extends PlayerNode> implements
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * net.funkyjava.cscfrm.game.itf.generic.GameObserver#choseChanceAction(int)
+	 * net.funkyjava.cscfrm.game.itf.generic.GameObserver#onChanceActionChosen
+	 * (int)
 	 */
 	@Override
-	public void choseChanceAction(int actionIndex) {
+	public void onChanceActionChosen(int actionIndex) {
 		if (debug)
 			log.debug("{} : chose chance {}", seq, actionIndex);
 		if (seq == Sequence.ROOT) {
@@ -577,10 +577,10 @@ public class KuhnPoker<PNode extends PlayerNode> implements
 		double v = 0;
 		for (int i = 0; i < strat.length; i++)
 			if ((v += strat[i]) >= r) {
-				chosePlayerAction(i);
+				onPlayerActionChosen(i);
 				return i;
 			}
-		chosePlayerAction(0);
+		onPlayerActionChosen(0);
 		return 0;
 	}
 
