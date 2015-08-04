@@ -140,7 +140,9 @@ It's a perfect cards indexer taking colors permutations into account. As it's a 
 
 My implementation was not inspired at all by Waugh's one (in C) because I found it too hard to read :P
 
-It performs about twice slower than Djhemlig's LUT for flop (6M indexings/s vs 12M on my computer), but I plan to implement interesting stuff on it :P
+It performs about twice slower than Djhemlig's LUT for flop (6M indexings/s vs 12M on my computer), but it isn't the same thing as it is isomorphic and very flexible : you can index any number of groups of any number of cards with it so it can be used for many games.
+
+The only current limitation of my implementation is the use of integers instead of longs for the indexes that limitates it to the max Java integer value. So you can't for example index the Hold'Em river with perfect recall. 
 
 
 ### Conclusion
