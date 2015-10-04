@@ -32,8 +32,10 @@ import net.funkyjava.gametheory.gameutil.cards.indexing.CardsGroupsIndexer;
  *
  */
 public final class WaughIndexer implements CardsGroupsIndexer {
+
 	private static final DefaultIntCardsSpecs cardsSpecs = new DefaultIntCardsSpecs();
 	private static final int nbColors = 4;
+
 	private final int[] confOffsets;
 	private final ColorsConfiguration[] confs;
 	private final int size;
@@ -95,18 +97,23 @@ public final class WaughIndexer implements CardsGroupsIndexer {
 			if (!isConfValid()) {
 				return currentOffset;
 			}
-			ColorsConfiguration cc = new ColorsConfiguration(tmpConf);
+			final ColorsConfiguration cc = new ColorsConfiguration(tmpConf);
 			int ccIndex = 0;
-			int mult = 1;
+
 			for (int i = 0; i < nbColors; i++) {
 				int colorConfIndex = 0;
-				int colorMult = 1;
 				for (int j = 0; j < nbCardsGroups; j++) {
-					colorConfIndex += colorMult * tmpConf[i][j];
-					colorMult *= cardsGroupsSizes[j];
+					colorConfIndex = tmpConf[i][j] + (cardsGroupsSizes[j] + 1)
+							* colorConfIndex;
 				}
-				ccIndex += mult * colorConfIndex;
-				mult *= nbOfConfsPerColor;
+				ccIndex = colorConfIndex + nbOfConfsPerColor * ccIndex;
+			}
+			if (confs[ccIndex] != null) {
+				throw new IllegalArgumentException(
+						"Colors configuration colision. Existing : "
+								+ Arrays.deepToString(confs[ccIndex].orderedColorsGroupsConf)
+								+ " new " + Arrays.deepToString(tmpConf)
+								+ " with same index " + ccIndex);
 			}
 			confs[ccIndex] = cc;
 			confOffsets[ccIndex] = currentOffset;
@@ -247,17 +254,13 @@ public final class WaughIndexer implements CardsGroupsIndexer {
 		// Hardly readable, see ColorsConfiguration instantiation in
 		// enumForColor method
 		m = 0;
-		mult = 1;
 		for (i = 0; i < colorsCount; i++) {
 			arrVar1 = conf[i];
-			k = j = 0;
-			l = 1;
-			for (; j < nbGroups; j++) {
-				k += l * arrVar1[j];
-				l *= groupsSizes[j];
+			k = 0;
+			for (j = 0; j < nbGroups; j++) {
+				k = arrVar1[j] + (groupsSizes[j] + 1) * k;
 			}
-			m += mult * k;
-			mult *= nbOfConfsPerColor;
+			m = k + nbOfConfsPerColor * m;
 		}
 
 		return confOffsets[m] + confs[m].indexIdxsForConf(colorsIdx);
@@ -337,7 +340,7 @@ public final class WaughIndexer implements CardsGroupsIndexer {
 			gCards[i] = 0l;
 			arrVar1 = cardsGroups[i];
 			for (j = 0; j < groupsSizes[i]; j++)
-				gCards[i] |= 0x1l << ((arrVar1[j] % 13) + 16 * (arrVar1[j] / 13));
+				gCards[i] |= 0x1l << ((arrVar1[j] / 4) + 16 * (arrVar1[j] % 4));
 		}
 		i = 0;
 
@@ -372,7 +375,6 @@ public final class WaughIndexer implements CardsGroupsIndexer {
 				ranksUsed |= arrVar2[k];
 			}
 			colorsIdx[i] = m;
-
 			// Eventually swap the color conf/cards and idx with the previous
 			// one based on lexicographic order then idxs order
 			j = i - 1;
@@ -406,17 +408,13 @@ public final class WaughIndexer implements CardsGroupsIndexer {
 		// Hardly readable, see ColorsConfiguration instantiation in
 		// enumForColor method
 		m = 0;
-		mult = 1;
 		for (i = 0; i < colorsCount; i++) {
 			arrVar1 = conf[i];
-			k = j = 0;
-			l = 1;
-			for (; j < nbGroups; j++) {
-				k += l * arrVar1[j];
-				l *= groupsSizes[j];
+			k = 0;
+			for (j = 0; j < nbGroups; j++) {
+				k = arrVar1[j] + (groupsSizes[j] + 1) * k;
 			}
-			m += mult * k;
-			mult *= nbOfConfsPerColor;
+			m = k + nbOfConfsPerColor * m;
 		}
 
 		return confOffsets[m] + confs[m].indexIdxsForConf(colorsIdx);

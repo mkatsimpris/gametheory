@@ -74,6 +74,39 @@ public class Cards52Strings {
 	}
 
 	/**
+	 * Gets the cards string
+	 * 
+	 * @param cards
+	 *            the int cards compliant with the spec
+	 * @return the cards string
+	 */
+	public String getStr(int[] cards) {
+		StringBuilder b = new StringBuilder();
+		for (int card : cards)
+			b.append(ranks[spec.getStandardRank(card)]
+					+ colors[spec.getStandardColor(card)]);
+		return b.toString();
+	}
+
+	/**
+	 * Gets the cards groups string
+	 * 
+	 * @param cards
+	 *            the int cards groups compliant with the spec
+	 * @return the cards string
+	 */
+	public String getStr(int[][] cards) {
+		StringBuilder b = new StringBuilder();
+		for (int i = 0; i < cards.length; i++) {
+			for (int card : cards[i])
+				b.append(ranks[spec.getStandardRank(card)]
+						+ colors[spec.getStandardColor(card)]);
+			b.append(' ');
+		}
+		return b.toString();
+	}
+
+	/**
 	 * Gets the int value of a String represented card
 	 * 
 	 * @param cardStr

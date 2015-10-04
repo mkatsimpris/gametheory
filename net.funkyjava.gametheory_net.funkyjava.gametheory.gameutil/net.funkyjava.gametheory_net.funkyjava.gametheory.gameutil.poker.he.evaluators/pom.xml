@@ -30,8 +30,7 @@
    		net.funkyjava.gametheory.gameutil.poker.he.handeval.twoplustwo
    	</artifactId>
    	<version>${project.version}</version>
-   	<scope>test</scope>
-   </dependency>
+   </dependency> 
 	<dependency>
 		<groupId>net.funkyjava.gametheory</groupId>
 		<artifactId>
@@ -39,6 +38,13 @@
    	</artifactId>
 		<version>${project.version}</version>
 		<scope>test</scope>
+	</dependency>
+	<dependency>
+		<groupId>net.funkyjava.gametheory</groupId>
+		<artifactId>
+			net.funkyjava.gametheory.gameutil.poker.he.indexing.waugh
+		</artifactId>
+		<version>${project.version}</version>
 	</dependency>
   </dependencies>
 </project>

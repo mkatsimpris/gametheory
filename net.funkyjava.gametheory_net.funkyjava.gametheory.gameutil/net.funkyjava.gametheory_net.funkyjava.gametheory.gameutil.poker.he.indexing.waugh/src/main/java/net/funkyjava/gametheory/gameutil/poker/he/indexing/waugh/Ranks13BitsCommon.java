@@ -21,7 +21,7 @@ public final class Ranks13BitsCommon {
 				combinations[i][j] = comb(i, j);
 	}
 
-	private static int comb(int n, int k) {
+	private static final int comb(int n, int k) {
 		if (k > n)
 			return 0;
 		return (int) CombinatoricsUtils.binomialCoefficient(n, k);

@@ -3,7 +3,6 @@
  */
 package net.funkyjava.gametheory.gameutil.poker.he.handeval.twoplustwo;
 
-import static net.funkyjava.gametheory.gameutil.poker.he.handeval.twoplustwo.Generator.handRanks;
 import net.funkyjava.gametheory.gameutil.cards.IntCardsSpec;
 import net.funkyjava.gametheory.gameutil.poker.he.handeval.Holdem5CardsEvaluator;
 import net.funkyjava.gametheory.gameutil.poker.he.handeval.Holdem6CardsEvaluator;
@@ -62,6 +61,7 @@ public class TwoPlusTwoEvaluator implements HoldemFullEvaluator,
 	@Override
 	public int compare7CardsHands(int[] h1, int[] h2, int[] board) {
 		int b;
+		final int[] handRanks = Generator.handRanks;
 		return handRanks[handRanks[(b = handRanks[handRanks[handRanks[handRanks[handRanks[53 + board[0]]
 				+ board[1]]
 				+ board[2]]
@@ -75,6 +75,7 @@ public class TwoPlusTwoEvaluator implements HoldemFullEvaluator,
 
 	@Override
 	public int get7CardsEval(int[] hand) {
+		final int[] handRanks = Generator.handRanks;
 		return handRanks[handRanks[handRanks[handRanks[handRanks[handRanks[handRanks[53 + hand[0]]
 				+ hand[1]]
 				+ hand[2]]
@@ -86,6 +87,7 @@ public class TwoPlusTwoEvaluator implements HoldemFullEvaluator,
 
 	@Override
 	public void get7CardsEvals(int[][] hands, int[] board, int[] dest) {
+		final int[] handRanks = Generator.handRanks;
 		int b = handRanks[handRanks[handRanks[handRanks[handRanks[53 + board[0]]
 				+ board[1]]
 				+ board[2]]
@@ -98,6 +100,7 @@ public class TwoPlusTwoEvaluator implements HoldemFullEvaluator,
 	@Override
 	public int compare5CardsHands(int[] h1, int[] h2, int[] board) {
 		int b;
+		final int[] handRanks = Generator.handRanks;
 		return handRanks[handRanks[(b = handRanks[handRanks[handRanks[53 + board[0]]
 				+ board[1]]
 				+ board[2]])
@@ -108,6 +111,7 @@ public class TwoPlusTwoEvaluator implements HoldemFullEvaluator,
 
 	@Override
 	public int get5CardsEval(int[] hand) {
+		final int[] handRanks = Generator.handRanks;
 		return handRanks[handRanks[handRanks[handRanks[handRanks[53 + hand[0]]
 				+ hand[1]]
 				+ hand[2]]
@@ -117,6 +121,7 @@ public class TwoPlusTwoEvaluator implements HoldemFullEvaluator,
 
 	@Override
 	public void get5CardsEvals(int[][] hands, int[] board, int[] dest) {
+		final int[] handRanks = Generator.handRanks;
 		int b = handRanks[handRanks[handRanks[53 + board[0]] + board[1]]
 				+ board[2]];
 		for (int i = 0; i < hands.length; i++)
@@ -126,6 +131,7 @@ public class TwoPlusTwoEvaluator implements HoldemFullEvaluator,
 	@Override
 	public int compare6CardsHands(int[] h1, int[] h2, int[] board) {
 		int b;
+		final int[] handRanks = Generator.handRanks;
 		return handRanks[handRanks[(b = handRanks[handRanks[handRanks[handRanks[53 + board[0]]
 				+ board[1]]
 				+ board[2]]
@@ -137,6 +143,7 @@ public class TwoPlusTwoEvaluator implements HoldemFullEvaluator,
 
 	@Override
 	public int get6CardsEval(int[] hand) {
+		final int[] handRanks = Generator.handRanks;
 		return handRanks[handRanks[handRanks[handRanks[handRanks[handRanks[53 + hand[0]]
 				+ hand[1]]
 				+ hand[2]]
@@ -147,6 +154,7 @@ public class TwoPlusTwoEvaluator implements HoldemFullEvaluator,
 
 	@Override
 	public void get6CardsEvals(int[][] hands, int[] board, int[] dest) {
+		final int[] handRanks = Generator.handRanks;
 		int b = handRanks[handRanks[handRanks[handRanks[53 + board[0]]
 				+ board[1]]
 				+ board[2]]
