@@ -63,9 +63,50 @@ public class PokerRanksGroupsIndexing {
 		}
 	}
 
+	public static final void unindexGroupLong(final long idx,
+			final int[] setsSizes, final int[] dest) {
+		long nextIdx = idx;
+		int setRanks;
+		int ranksUsed = 0;
+		int size;
+		int set;
+		int msbMask;
+		int origMask;
+		for (int i = 0; i < setsSizes.length; i++) {
+			set = 0;
+			size = combinations[numberOfRanks - numberOfSetBits[ranksUsed]][setsSizes[i]];
+			setRanks = unindexSetLong(nextIdx % size, setsSizes[i]);
+			nextIdx = nextIdx / size;
+			// setRanks contains ranks that can have been shifted down
+			// After this loop, set should contain the unshifted set
+			while (setRanks != 0) {
+				origMask = msbMask = msbMasks[setRanks];
+				while (origMask << numberOfSetBits[((msbMask | (msbMask - 1)) & ranksUsed)] != msbMask)
+					msbMask = msbMask << 1;
+				set |= msbMask;
+				setRanks ^= origMask;
+			}
+			ranksUsed |= set;
+			dest[i] = set;
+		}
+	}
+
 	public static final int unindexSet(int idx, int setSize) {
 		int maxRank = numberOfRanks - 1;
 		int newIdx = idx;
+		int res = 0;
+		for (int newSetSize = setSize; newSetSize > 0; newSetSize--) {
+			for (; combinations[maxRank][newSetSize] > newIdx; maxRank--)
+				;
+			newIdx -= combinations[maxRank][newSetSize];
+			res |= 0x1 << (maxRank--);
+		}
+		return res;
+	}
+
+	public static final int unindexSetLong(long idx, int setSize) {
+		int maxRank = numberOfRanks - 1;
+		long newIdx = idx;
 		int res = 0;
 		for (int newSetSize = setSize; newSetSize > 0; newSetSize--) {
 			for (; combinations[maxRank][newSetSize] > newIdx; maxRank--)
