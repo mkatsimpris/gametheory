@@ -339,6 +339,12 @@ public class NLHEHUPushFold<PNode extends PlayerNode> implements
 	}
 
 	private void distributeCards() {
+		final int[] intCards = this.intCards;
+		final int[] p1CardsInt = this.p1CardsInt;
+		final int[] p2CardsInt = this.p2CardsInt;
+		final int[] boardCardsInt = this.boardCardsInt;
+		final int[][] cardsHands = this.cardsHands;
+		final int deckOffset = this.deckOffset;
 		deck.oneShotDeckDraw(intCards);
 		System.arraycopy(intCards, 0, p1CardsInt, 0, 2);
 		System.arraycopy(intCards, 2, p2CardsInt, 0, 2);
@@ -506,20 +512,21 @@ public class NLHEHUPushFold<PNode extends PlayerNode> implements
 		if (ignoreChanceNodes)
 			throw new IllegalArgumentException(
 					"Asked for chance but should ignore...");
+		final Sequence seq = this.seq;
 		if (seq == Sequence.BB_CALLED || seq == Sequence.SB_PUSHED) {
-			seq = Sequence.ALL_IN_RESULT;
+			this.seq = Sequence.ALL_IN_RESULT;
 			return allInResult;
 		}
 		if (seq == Sequence.ROOT) {
-			seq = Sequence.DISTRIBUTED_P1;
+			this.seq = Sequence.DISTRIBUTED_P1;
 			return p1Cards;
 		}
 		if (seq == Sequence.DISTRIBUTED_P1) {
-			seq = Sequence.DISTRIBUTED_P2;
+			this.seq = Sequence.DISTRIBUTED_P2;
 			return p2Cards;
 		}
 		if (seq == Sequence.DISTRIBUTED_P2 && immediateAllIn) {
-			seq = Sequence.ALL_IN_RESULT;
+			this.seq = Sequence.ALL_IN_RESULT;
 			return allInResult;
 		}
 		throw new IllegalArgumentException("Bad sequence to chose a chance : "
@@ -585,28 +592,29 @@ public class NLHEHUPushFold<PNode extends PlayerNode> implements
 		if (ignoreChanceNodes)
 			throw new IllegalArgumentException(
 					"Asked for chance but should ignore...");
+		final Sequence seq = this.seq;
 		if (seq == Sequence.BB_CALLED) {
-			seq = Sequence.ALL_IN_RESULT;
+			this.seq = Sequence.ALL_IN_RESULT;
 			allInResult = actionIndex;
 			return;
 		}
 		if (seq == Sequence.ROOT) {
-			seq = Sequence.DISTRIBUTED_P1;
+			this.seq = Sequence.DISTRIBUTED_P1;
 			p1Cards = actionIndex;
 			return;
 		}
 		if (seq == Sequence.DISTRIBUTED_P1) {
-			seq = Sequence.DISTRIBUTED_P2;
+			this.seq = Sequence.DISTRIBUTED_P2;
 			p2Cards = actionIndex;
 			return;
 		}
 		if (seq == Sequence.SB_PUSHED && justSbCall) {
-			seq = Sequence.ALL_IN_RESULT;
+			this.seq = Sequence.ALL_IN_RESULT;
 			allInResult = actionIndex;
 			return;
 		}
 		if (seq == Sequence.DISTRIBUTED_P2 && immediateAllIn) {
-			seq = Sequence.ALL_IN_RESULT;
+			this.seq = Sequence.ALL_IN_RESULT;
 			allInResult = actionIndex;
 			return;
 		}
@@ -647,7 +655,7 @@ public class NLHEHUPushFold<PNode extends PlayerNode> implements
 
 	/**
 	 * Builds standard push / call charts considering a push or a call will
-	 * occure when the action frequency is > minAction
+	 * occur when the action frequency is > minAction
 	 * 
 	 * @param minAction
 	 *            the threshold

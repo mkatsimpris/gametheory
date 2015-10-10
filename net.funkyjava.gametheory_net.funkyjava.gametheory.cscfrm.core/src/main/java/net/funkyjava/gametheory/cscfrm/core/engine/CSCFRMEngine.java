@@ -18,14 +18,6 @@ public final class CSCFRMEngine {
 	/** The number of players. */
 	private final int nbPlayers;
 
-	/** Iteration depth. */
-	private int depth = 0;
-	/** Iteration next depth. */
-	private int nextDepth;
-
-	/** The node variable. */
-	private Node node;
-
 	/** Iteration nodes indexed by depth. */
 	private final Node[] iterNodes;
 
@@ -46,46 +38,6 @@ public final class CSCFRMEngine {
 
 	/** The zero array to reset utility. */
 	private final double[] zero;
-
-	/**
-	 * The forward boolean that indicates in which direction the iteration goes.
-	 */
-	private boolean forward = true;
-
-	/** Iteration utility. */
-	private double[] itUtil;
-	/** Iteration next utility. */
-	private double[] itNextUtil;
-	/** Iteration strategy. */
-	private double[] itStrat;
-	/** Iteration regret. */
-	private double[] itRegret;
-	/** Iteration realization weight. */
-	private double[] itReal;
-	/** Iteration next realization weight. */
-	private double[] itNextReal;
-	/** Iteration strategy sum. */
-	private double[] stratSum;
-
-	/** Temporary weight double. */
-	private double weight;
-	/** Temporary totalRegret double. */
-	private double totalRegret;
-
-	/** Temporary int. */
-	private int a;
-	/** Temporary int. */
-	private int i;
-	/** Temporary int. */
-	private int p;
-	/** Temporary int. */
-	private int player;
-	/** Temporary int. */
-	private int action;
-	/** Temporary int. */
-	private int iter;
-	/** Temporary int. */
-	private int nbActions;
 
 	/** The engine's utility manager. */
 	private CSCFRMUtilityManager utilMgr;
@@ -120,7 +72,7 @@ public final class CSCFRMEngine {
 				"Game must have at least two players");
 		this.nbPlayers = game.getNbPlayers();
 		checkArgument(game.getMaxDepth() > 0, "Game's max depth must be > 0");
-		depth = game.getMaxDepth();
+		int depth = game.getMaxDepth();
 		zero = new double[nbPlayers];
 		iterNodes = new Node[depth];
 		iterNodeLastAction = new int[depth];
@@ -154,8 +106,40 @@ public final class CSCFRMEngine {
 	 *             any exception that can be caused by a malformed game
 	 */
 	public void train() throws Exception {
-		forward = true;
-		depth = -1;
+		double weight;
+		double totalRegret;
+		int a;
+		int i;
+		int p;
+		int player;
+		int action;
+		int nbActions;
+		int depth = -1;
+		int nextDepth;
+		Node node;
+		boolean forward = true;
+		double[] itUtil;
+		double[] itNextUtil;
+		double[] itStrat;
+		double[] itRegret;
+		double[] itReal;
+		double[] itNextReal;
+		double[] stratSum;
+
+		final boolean readTerminalUtil = this.readTerminalUtil;
+		final boolean updateVisits = this.updateVisits;
+		final int nbPlayers = this.nbPlayers;
+		final double[][] realizationWeight = this.realizationWeight;
+		final double[] zero = this.zero;
+		final CSCFRMBaseGame game = this.game;
+		final Node[] iterNodes = this.iterNodes;
+		final int[] iterNodeLastAction = this.iterNodeLastAction;
+		final double[][] util = this.util;
+		final double[][][] pNodesUtil = this.pNodesUtil;
+		final CSCFRMTerminalUtilReader termUtils = readTerminalUtil ? this.termUtils
+				: null;
+		final boolean lockPlayersNodes = this.lockPlayersNodes;
+
 		for (i = 0; i < nbPlayers; i++)
 			realizationWeight[0][i] = 1;
 		game.onIterationStart();
@@ -163,7 +147,8 @@ public final class CSCFRMEngine {
 			if (forward) {
 				nextDepth = (++depth) + 1;
 				iterNodes[depth] = node = game.getCurrentNode();
-				if (node.bType == 2) {
+				final byte bType = node.bType;
+				if (bType == 2) {
 					// Terminal
 					forward = false;
 					if (!readTerminalUtil || (a = node.id) < 0) {
@@ -180,7 +165,7 @@ public final class CSCFRMEngine {
 				}
 				itUtil = util[depth];
 				System.arraycopy(zero, 0, itUtil, 0, nbPlayers);
-				if (node.bType == 0) { // Chance
+				if (bType == 0) { // Chance
 					System.arraycopy(realizationWeight[depth], 0,
 							realizationWeight[nextDepth], 0, nbPlayers);
 					game.choseChanceAction();
@@ -214,7 +199,8 @@ public final class CSCFRMEngine {
 			game.back();
 			nextDepth = depth--;
 			node = iterNodes[depth];
-			if (node.bType == 0) { // Chance
+			final byte bType = node.bType;
+			if (bType == 0) { // Chance
 				if (depth > 0) {
 					System.arraycopy(util[nextDepth], 0, util[depth], 0,
 							nbPlayers);

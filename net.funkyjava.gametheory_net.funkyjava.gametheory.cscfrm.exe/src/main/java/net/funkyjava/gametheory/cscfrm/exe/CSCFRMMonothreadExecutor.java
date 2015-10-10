@@ -87,6 +87,7 @@ public class CSCFRMMonothreadExecutor<PNode extends PlayerNode, GameClass extend
 	public synchronized void run(int nbIter) throws Exception {
 		checkArgument(nbIter > 0, "The number of iterations must be > 0");
 		log.info("Running for {} iterations", nbIter);
+		final CSCFRMEngine engine = this.engine;
 		try {
 			for (int i = 0; i < nbIter; i++)
 				engine.train();

@@ -45,7 +45,12 @@ public class NLHEHUPushFoldTest {
 		CSCFRMMonothreadExecutor<DefaultPlayerNode, NLHEHUPushFold<DefaultPlayerNode>> exe = ws
 				.buildMonothreadExecutor(game, new CSCFRMConfig(),
 						new CSCFRMExecutionLoaderConfig(false));
-		exe.run(10000000);
+		final long start = System.currentTimeMillis();
+		final int nbIter = 10000000;
+		exe.run(nbIter);
+		final double duration = System.currentTimeMillis() - start;
+		log.info("Executed {} iterations at {} iter/s", nbIter,
+				(nbIter / duration) * 1000);
 		log.info(game.getBinaryStrategiesString(0.5));
 		game = new NLHEHUPushFold<>(new DefaultNodesProvider(), 5, 10, 200,
 				200, 5, new TwoPlusTwoEvaluator());
