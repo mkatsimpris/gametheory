@@ -377,7 +377,6 @@ public class AllHoldemHSTables {
 				for (f1 = 0; f1 < 50; f1++) {
 					if (((0x1l << f1) & deck) != 0l)
 						continue;
-					System.out.println(String.format("%d %d | %d", h1, h2, f1));
 					hCards[2] = oCards[2] = translateToEval
 							.translate(flop[0] = river[0] = turn[0] = f1);
 					for (f2 = f1 + 1; f2 < 51; f2++) {
@@ -662,25 +661,18 @@ public class AllHoldemHSTables {
 				new FileOutputStream(f))) {
 			final ZipEntry e = new ZipEntry(fileName);
 			out.putNextEntry(e);
-			final int preflopSize = preflopEHS.length;
-			final int flopSize = flopEHS2Table.length;
-			final int turnSize = turnEHS2Table.length;
-			final int riverSize = riverHSTable.length;
 
-			final ByteBuffer preflopBuf = ByteBuffer.allocate(8 * preflopSize);
-			final ByteBuffer flopBuf = ByteBuffer.allocate(8 * flopSize);
-			final ByteBuffer turnBuf = ByteBuffer.allocate(8 * turnSize);
-			final ByteBuffer riverBuf = ByteBuffer.allocate(8 * riverSize);
+			final ByteBuffer buffer = ByteBuffer.allocate(800_000);
 
-			write(out, preflopBuf, preflopEHS);
-			write(out, preflopBuf, preflopEHS2);
-			write(out, flopBuf, flopHSTable);
-			write(out, flopBuf, flopEHSTable);
-			write(out, flopBuf, flopEHS2Table);
-			write(out, turnBuf, turnHSTable);
-			write(out, turnBuf, turnEHSTable);
-			write(out, turnBuf, turnEHS2Table);
-			write(out, riverBuf, riverHSTable);
+			write(out, buffer, preflopEHS);
+			write(out, buffer, preflopEHS2);
+			write(out, buffer, flopHSTable);
+			write(out, buffer, flopEHSTable);
+			write(out, buffer, flopEHS2Table);
+			write(out, buffer, turnHSTable);
+			write(out, buffer, turnEHSTable);
+			write(out, buffer, turnEHS2Table);
+			write(out, buffer, riverHSTable);
 			out.closeEntry();
 		}
 	}
@@ -688,9 +680,17 @@ public class AllHoldemHSTables {
 	private static void write(OutputStream out, ByteBuffer buf, double[] src)
 			throws IOException {
 		buf.clear();
-		buf.asDoubleBuffer().put(src);
-		buf.clear();
-		out.write(buf.array());
+		final int size = src.length;
+		int totalWrote = 0;
+		final int bufCapacity = buf.asDoubleBuffer().capacity();
+		int wrote;
+		while (totalWrote < size) {
+			buf.clear();
+			wrote = Math.min(bufCapacity, size - totalWrote);
+			buf.asDoubleBuffer().put(src, totalWrote, wrote);
+			out.write(buf.array(), 0, wrote * 8);
+			totalWrote += wrote;
+		}
 	}
 
 	public static synchronized void readFrom(Path path) throws IOException {
@@ -712,26 +712,17 @@ public class AllHoldemHSTables {
 					continue;
 				final InputStream stream = zipFile.getInputStream(entry);
 
-				final int preflopSize = preflopEHS.length;
-				final int flopSize = flopEHS2Table.length;
-				final int turnSize = turnEHS2Table.length;
-				final int riverSize = riverHSTable.length;
+				final ByteBuffer buffer = ByteBuffer.allocate(800_000);
 
-				final ByteBuffer preflopBuf = ByteBuffer
-						.allocate(preflopSize * 8);
-				final ByteBuffer flopBuf = ByteBuffer.allocate(flopSize * 8);
-				final ByteBuffer turnBuf = ByteBuffer.allocate(turnSize * 8);
-				final ByteBuffer riverBuf = ByteBuffer.allocate(riverSize * 8);
-
-				read(stream, preflopBuf, preflopEHS);
-				read(stream, preflopBuf, preflopEHS2);
-				read(stream, flopBuf, flopHSTable);
-				read(stream, flopBuf, flopEHSTable);
-				read(stream, flopBuf, flopEHS2Table);
-				read(stream, turnBuf, turnHSTable);
-				read(stream, turnBuf, turnEHSTable);
-				read(stream, turnBuf, turnEHS2Table);
-				read(stream, riverBuf, riverHSTable);
+				read(stream, buffer, preflopEHS);
+				read(stream, buffer, preflopEHS2);
+				read(stream, buffer, flopHSTable);
+				read(stream, buffer, flopEHSTable);
+				read(stream, buffer, flopEHS2Table);
+				read(stream, buffer, turnHSTable);
+				read(stream, buffer, turnEHSTable);
+				read(stream, buffer, turnEHS2Table);
+				read(stream, buffer, riverHSTable);
 				return;
 			}
 		}
@@ -742,14 +733,27 @@ public class AllHoldemHSTables {
 	private static void read(InputStream stream, ByteBuffer buffer,
 			double[] dest) throws IOException {
 		buffer.clear();
-		final int size = buffer.array().length;
+		final int bufCapacity = buffer.capacity();
+		final int size = dest.length * 8;
 		int read = 0;
 		int lastRead;
 		while (read < size) {
-			read += lastRead = stream.read(buffer.array(), read, size - read);
-			if (lastRead < 0)
-				throw new IOException("File is too short, it may be corrupted");
+			buffer.clear();
+			final int toRead = Math.min(bufCapacity, size - read);
+			int readForThisBuffferLoop = 0;
+			while (readForThisBuffferLoop < toRead) {
+				readForThisBuffferLoop += lastRead = stream.read(
+						buffer.array(), readForThisBuffferLoop, toRead
+								- readForThisBuffferLoop);
+
+				if (lastRead < 0)
+					throw new IOException(
+							"File is too short, it may be corrupted");
+			}
+			buffer.clear();
+			buffer.asDoubleBuffer().get(dest, read / 8, toRead / 8);
+			read += toRead;
 		}
-		buffer.asDoubleBuffer().get(dest);
+
 	}
 }

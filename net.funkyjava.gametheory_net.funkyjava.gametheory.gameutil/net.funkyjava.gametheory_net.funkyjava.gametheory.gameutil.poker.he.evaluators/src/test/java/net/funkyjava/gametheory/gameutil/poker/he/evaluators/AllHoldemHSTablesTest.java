@@ -3,7 +3,7 @@ package net.funkyjava.gametheory.gameutil.poker.he.evaluators;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.net.URISyntaxException;
 
 import lombok.extern.slf4j.Slf4j;
 import net.funkyjava.gametheory.gameutil.cards.Cards52Strings;
@@ -16,6 +16,8 @@ import org.junit.Test;
 @Slf4j
 public class AllHoldemHSTablesTest {
 
+	private static boolean runLongTest = false;
+
 	/**
 	 * Test values based on <a href=
 	 * "http://www.poker-ai.org/archive/pokerai.org/pf3/viewtopic57d8.html?f=3&t=2764&view=next"
@@ -26,21 +28,20 @@ public class AllHoldemHSTablesTest {
 	 * >Indiana base implementation</a>
 	 * 
 	 * @throws IOException
+	 * @throws URISyntaxException
 	 */
 	@Test
-	public void testFlopValues() throws IOException {
+	public void testValues() throws IOException, URISyntaxException {
+		if (!runLongTest) {
+			log.info("Not running AllHoldemHSTables testValues (takes too long). "
+					+ "Set this test class runLongTest boolean to true to execute it.");
+			return;
+		}
 		log.info("Testing all EHS tables");
 		final IntCardsSpec specs = DefaultIntCardsSpecs.getDefault();
 		Cards52Strings c = new Cards52Strings(specs);
-		log.info("Creating all EHS tables");
-
-		final long start = System.currentTimeMillis();
-		AllHoldemHSTables.readFrom(Paths.get("/Users/pitt/ALL_HE_HS.zip"));
-		// AllHoldemHSTables.compute();
-
-		log.info("Computing tables took {} min",
-				(System.currentTimeMillis() - start) / 60000l);
-
+		log.info("Loading all EHS tables");
+		AllHoldemHSTables.compute();
 		AllHoldemHSTables evals = new AllHoldemHSTables();
 		final CardsGroupsDoubleEvaluator flopEhsEval = evals
 				.getFlopEHSEvaluator();

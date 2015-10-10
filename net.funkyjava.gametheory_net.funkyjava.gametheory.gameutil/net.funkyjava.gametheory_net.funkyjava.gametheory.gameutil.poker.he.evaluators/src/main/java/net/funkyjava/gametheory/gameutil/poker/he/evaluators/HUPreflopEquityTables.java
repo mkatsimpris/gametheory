@@ -304,25 +304,10 @@ public class HUPreflopEquityTables {
 				new FileOutputStream(f))) {
 			final ZipEntry e = new ZipEntry(fileName);
 			out.putNextEntry(e);
-			final ByteBuffer preflopBuf = ByteBuffer
-					.allocate(4 * 3 * nbHoleCards);
-			final ByteBuffer flop2Buf = ByteBuffer.allocate(4 * 3 * nbFlop2);
-
-			write(out, preflopBuf, preflopCounts);
-			write(out, flop2Buf, flop2Counts);
+			write(out, preflopCounts);
+			write(out, flop2Counts);
 			out.closeEntry();
 		}
-	}
-
-	private static void write(OutputStream out, ByteBuffer buf, int[][] src)
-			throws IOException {
-		buf.clear();
-		final IntBuffer intBuf = buf.asIntBuffer();
-		for (int i = 0; i < src.length; i++) {
-			intBuf.put(src[i]);
-		}
-		buf.clear();
-		out.write(buf.array());
 	}
 
 	public static synchronized void readFrom(Path path) throws IOException {
@@ -346,14 +331,8 @@ public class HUPreflopEquityTables {
 				if (!fileName.equals(entry.getName()))
 					continue;
 				final InputStream stream = zipFile.getInputStream(entry);
-
-				final ByteBuffer preflopBuf = ByteBuffer
-						.allocate(4 * 3 * nbHoleCards);
-				final ByteBuffer flop2Buf = ByteBuffer
-						.allocate(4 * 3 * nbFlop2);
-
-				read(stream, preflopBuf, preflopCounts);
-				read(stream, flop2Buf, flop2Counts);
+				read(stream, preflopCounts);
+				read(stream, flop2Counts);
 				return;
 			}
 		}
@@ -361,19 +340,34 @@ public class HUPreflopEquityTables {
 				"The zip file doesn't contain a file named " + fileName);
 	}
 
-	private static void read(InputStream stream, ByteBuffer buffer, int[][] dest)
+	private static void write(final OutputStream out, final int[][] src)
 			throws IOException {
-		buffer.clear();
-		final int size = buffer.array().length;
-		int read = 0;
-		int lastRead;
-		while (read < size) {
-			read += lastRead = stream.read(buffer.array(), read, size - read);
-			if (lastRead < 0)
-				throw new IOException("File is too short, it may be corrupted");
+		final ByteBuffer buf = ByteBuffer.allocate(12);
+		final IntBuffer intBuf = buf.asIntBuffer();
+		for (int i = 0; i < src.length; i++) {
+			intBuf.put(src[i]);
+			out.write(buf.array());
+			buf.clear();
 		}
-		final IntBuffer intBuf = buffer.asIntBuffer();
-		for (int i = 0; i < dest.length; i++)
+	}
+
+	private static void read(final InputStream stream, final int[][] dest)
+			throws IOException {
+		final ByteBuffer buf = ByteBuffer.allocate(12);
+		final byte[] array = buf.array();
+		final IntBuffer intBuf = buf.asIntBuffer();
+		for (int i = 0; i < dest.length; i++) {
+			int read = 0;
+			int lastRead;
+			while (read < 12) {
+				read += lastRead = stream.read(array, read, 12 - read);
+				if (lastRead < 0)
+					throw new IOException(
+							"Couldn't read the input stream, file may be too short or corrupted");
+			}
 			intBuf.get(dest[i]);
+			intBuf.clear();
+		}
+
 	}
 }
